@@ -1,38 +1,63 @@
 package com.es.phoneshop.model.product;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Currency;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Currency;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class ArrayListProductDao implements ProductDao {
+    private static final String PRODUCT_NULL_MSG = "product == null";
+    private static final int ZERO_STOCK = 0;
+    private static final long DEFAULT_ID = 0L;
     private final List<Product> products;
-    private Long nextId = 0L;
+    private Long nextId = DEFAULT_ID;
     private final ReadWriteLock lock;
 
+    public List<Product> getProducts() {
+        lock.readLock().lock();
+        try {
+            return Collections.unmodifiableList(products);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public Long getNextId() {
+        lock.readLock().lock();
+        try {
+            return nextId;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
     public ArrayListProductDao() {
         products = new ArrayList<>();
         lock = new ReentrantReadWriteLock();
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         lock.writeLock().lock();
-        try{
+        try {
             products.clear();
-        }finally {
+            nextId = DEFAULT_ID;
+        } finally {
             lock.writeLock().unlock();
         }
     }
-    public int getSize(){
+
+    public int getSize() {
         lock.readLock().lock();
-        try{
+        try {
             return products.size();
-        }finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -41,7 +66,11 @@ public class ArrayListProductDao implements ProductDao {
     public Product getProduct(Long id) throws NoSuchElementException {
         lock.readLock().lock();
         try {
-            return products.stream().filter(p -> id.equals(p.getId())).findAny().get();
+            return products
+                    .stream()
+                    .filter(p -> id.equals(p.getId()))
+                    .findAny()
+                    .get();
         } finally {
             lock.readLock().unlock();
         }
@@ -54,7 +83,9 @@ public class ArrayListProductDao implements ProductDao {
         try {
             return products.stream()
                     .filter(p -> p.getId() != null)
-                    .filter(p -> p.getStock() > 0).collect(Collectors.toList());
+                    .filter(p -> p.getStock() > ZERO_STOCK)
+                    .filter(p -> p.getPrice() != null)
+                    .collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
@@ -62,20 +93,14 @@ public class ArrayListProductDao implements ProductDao {
 
     @Override
     public void save(Product product) {
+        if (product == null) {
+            throw new NoSuchElementException(PRODUCT_NULL_MSG);
+        }
         lock.writeLock().lock();
         try {
-            if (!product.getId().equals(0L)) {
-
-                for (int i = 0; i < products.size(); i++) {
-                    if (product.getId().equals(products.get(i).getId())) {
-                        products.set(i, product);
-                        break;
-                    }
-                    if(i == products.size() - 1){
-                        products.add(product);
-                    }
-                }
-            } else{
+            if (product.getId() != null && !product.getId().equals(DEFAULT_ID)) {
+                handleProductWithId(product);
+            } else {
                 nextId++;
                 product.setId(nextId);
                 products.add(product);
@@ -85,25 +110,43 @@ public class ArrayListProductDao implements ProductDao {
         }
     }
 
+    private void handleProductWithId(@NotNull Product product) {
+        for (int i = 0; i < products.size(); i++) {
+            if (product.getId().equals(products.get(i).getId())) {
+                products.set(i, product);
+                break;
+            }
+            if (i == products.size() - 1) {
+                products.add(product);
+            }
+        }
+    }
+
     @Override
     public void delete(Long id) {
         lock.writeLock().lock();
         try {
-            for (int i = 0; i < products.size(); i++) {
-                if (id.equals(products.get(i).getId())) {
-                    products.remove(i);
-                    break;
-                }
+            if (id != null) {
+                removeProduct(id);
             }
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    public void saveDefaultProducts() {
+    private void removeProduct(@NotNull Long id) {
+        for (int i = 0; i < products.size(); i++) {
+            if (id.equals(products.get(i).getId())) {
+                products.remove(i);
+                break;
+            }
+        }
+    }
 
+    public void saveDefaultProducts() {
         Currency usd = Currency.getInstance("USD");
         save(new Product("sgs", "Samsung Galaxy S", new BigDecimal(100), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg"));
+        save(new Product("sgs2", "Samsung Galaxy S II", new BigDecimal(200), usd, 0, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg"));
         save(new Product("sgs2", "Samsung Galaxy S II", new BigDecimal(200), usd, 0, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg"));
         save(new Product("sgs3", "Samsung Galaxy S III", new BigDecimal(300), usd, 5, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg"));
         save(new Product("iphone", "Apple iPhone", new BigDecimal(200), usd, 10, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Apple/Apple%20iPhone.jpg"));
