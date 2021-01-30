@@ -20,19 +20,20 @@ public class ArrayListProductDao implements ProductDao {
         lock = new ReentrantReadWriteLock();
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         lock.writeLock().lock();
-        try{
+        try {
             products.clear();
-        }finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
-    public int getSize(){
+
+    public int getSize() {
         lock.readLock().lock();
-        try{
+        try {
             return products.size();
-        }finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -41,7 +42,11 @@ public class ArrayListProductDao implements ProductDao {
     public Product getProduct(Long id) throws NoSuchElementException {
         lock.readLock().lock();
         try {
-            return products.stream().filter(p -> id.equals(p.getId())).findAny().get();
+            return products
+                    .stream()
+                    .filter(p -> id.equals(p.getId()))
+                    .findAny()
+                    .get();
         } finally {
             lock.readLock().unlock();
         }
@@ -54,7 +59,9 @@ public class ArrayListProductDao implements ProductDao {
         try {
             return products.stream()
                     .filter(p -> p.getId() != null)
-                    .filter(p -> p.getStock() > 0).collect(Collectors.toList());
+                    .filter(p -> p.getStock() > 0)
+                    .filter(p -> p.getPrice()!=null)
+                    .collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
@@ -62,26 +69,32 @@ public class ArrayListProductDao implements ProductDao {
 
     @Override
     public void save(Product product) {
+        if (product == null) {
+            throw new NoSuchElementException("product == null");
+        }
         lock.writeLock().lock();
         try {
-            if (!product.getId().equals(0L)) {
-
-                for (int i = 0; i < products.size(); i++) {
-                    if (product.getId().equals(products.get(i).getId())) {
-                        products.set(i, product);
-                        break;
-                    }
-                    if(i == products.size() - 1){
-                        products.add(product);
-                    }
-                }
-            } else{
+            if (product.getId() != null && !product.getId().equals(0L)) {
+                handleProductWithId(product);
+            } else {
                 nextId++;
                 product.setId(nextId);
                 products.add(product);
             }
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    private void handleProductWithId(Product product) {
+        for (int i = 0; i < products.size(); i++) {
+            if (product.getId().equals(products.get(i).getId())) {
+                products.set(i, product);
+                break;
+            }
+            if (i == products.size() - 1) {
+                products.add(product);
+            }
         }
     }
 

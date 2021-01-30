@@ -7,82 +7,129 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class ArrayListProductDaoTest
-{
+public class ArrayListProductDaoTest {
     private ProductDao productDao;
     private Currency usd;
     private Product notDefaultProduct;
+
     @Before
     public void setup() {
         notDefaultProduct = new Product("iphone7", "IPhone 7", new BigDecimal(1200), usd, 9, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg");
         usd = Currency.getInstance("USD");
         productDao = new ArrayListProductDao();
-        ((ArrayListProductDao)productDao).saveDefaultProducts();
+        productDao.saveDefaultProducts();
     }
 
     @Test
-    public void testFindProductsDefaultProducts(){
-        assertEquals(12,productDao.findProducts().size());
-        productDao.getProduct(1L).setId(null);
-        assertEquals(11,productDao.findProducts().size());
+    public void shouldFindProductsDefaultProducts() {
+        assertEquals(12, productDao.findProducts().size());
     }
+
     @Test(expected = NoSuchElementException.class)
-    public void testDeleteProduct(){
+    public void shouldDeleteProduct() {
         productDao.delete(1L);
-        assertEquals(11,productDao.findProducts().size());
+
+        assertEquals(11, productDao.findProducts().size());
         productDao.getProduct(1L);
     }
-    @Test
-    public void testSaveNewProduct(){
-        productDao.save(notDefaultProduct);
-        assertEquals(14,((ArrayListProductDao)productDao).getSize());
-        assertEquals("iphone7",productDao.getProduct(14L).getCode());
+
+    @Test(expected = NoSuchElementException.class)
+    public void shouldSaveNull() {
+        productDao.save(null);
     }
+
     @Test
-    public void testSaveUpdateProduct(){
+    public void shouldProductWithNullId() {
+        notDefaultProduct.setId(null);
+
+        productDao.save(notDefaultProduct);
+
+        assertEquals(13, productDao.findProducts().size());
+    }
+
+    @Test
+    public void shouldSaveNewProduct() {
+        productDao.save(notDefaultProduct);
+
+        assertEquals(14, productDao.getSize());
+        assertEquals("iphone7", productDao.getProduct(14L).getCode());
+    }
+
+    @Test
+    public void shouldSaveUpdateProduct() {
         Long existId = 1L;
         notDefaultProduct.setId(existId);
-        productDao.save(notDefaultProduct);
-        assertEquals(notDefaultProduct,productDao.getProduct(existId));
-        assertEquals("iphone7",productDao.getProduct(existId).getCode());
-    }
-    @Test
-    public void testSaveProductWithId(){
-        Long id  = 17L;
-        notDefaultProduct.setId(id);
-        productDao.save(notDefaultProduct);
-        assertEquals(notDefaultProduct,productDao.getProduct(id));
-    }
-    @Test
-    public  void testGetSize(){
-        assertEquals(13,((ArrayListProductDao)productDao).getSize());
-        productDao.save(notDefaultProduct);
-        assertEquals(14,((ArrayListProductDao)productDao).getSize());
-        productDao.delete(1L);
-        assertEquals(13,((ArrayListProductDao)productDao).getSize());
-        ((ArrayListProductDao) productDao).deleteAll();
-        assertEquals(0,((ArrayListProductDao) productDao).getSize());
 
+        productDao.save(notDefaultProduct);
+
+        assertEquals(notDefaultProduct, productDao.getProduct(existId));
+        assertEquals("iphone7", productDao.getProduct(existId).getCode());
     }
+
     @Test
-    public void testDeleteAll(){
-        ((ArrayListProductDao)productDao).deleteAll();
-        assertEquals(0,((ArrayListProductDao) productDao).getSize());
+    public void shouldSaveProductWithId() {
+        Long id = 17L;
+        notDefaultProduct.setId(id);
+
+        productDao.save(notDefaultProduct);
+
+        assertEquals(notDefaultProduct, productDao.getProduct(id));
     }
+
     @Test
-    public void testFindProductsNoResults() {
-        ((ArrayListProductDao)productDao).deleteAll();
+    public void shouldGetSize() {
+        assertEquals(13, productDao.getSize());
+    }
+
+    @Test
+    public void shouldGetSizeSaveProduct() {
+        productDao.save(notDefaultProduct);
+
+        assertEquals(14, productDao.getSize());
+    }
+
+    @Test
+    public void shouldGetSizeDeleteProduct() {
+        productDao.delete(1L);
+
+        assertEquals(12, productDao.getSize());
+    }
+
+
+    @Test
+    public void shouldDeleteAll() {
+        productDao.deleteAll();
+
+        assertEquals(0, productDao.getSize());
+    }
+
+    @Test
+    public void shouldFindProductsNoResultsByStock() {
+        productDao.deleteAll();
+        productDao.save(notDefaultProduct);
+        notDefaultProduct.setStock(0);
+
         assertTrue(productDao.findProducts().isEmpty());
+    }
+
+    @Test
+    public void shouldFindProductsNoResultsById() {
+        productDao.deleteAll();
         productDao.save(notDefaultProduct);
         notDefaultProduct.setId(null);
-        assertTrue(productDao.findProducts().isEmpty());
-        notDefaultProduct.setId(1L);
-        notDefaultProduct.setStock(0);
-        assertTrue(productDao.findProducts().isEmpty());
-        notDefaultProduct.setStock(10);
-        assertFalse(productDao.findProducts().isEmpty());
 
+        assertTrue(productDao.findProducts().isEmpty());
+    }
+
+    @Test
+    public void shouldFindProductsNoResultsByPrice() {
+        productDao.deleteAll();
+        productDao.save(notDefaultProduct);
+        notDefaultProduct.setPrice(null);
+
+        assertTrue(productDao.findProducts().isEmpty());
     }
 }

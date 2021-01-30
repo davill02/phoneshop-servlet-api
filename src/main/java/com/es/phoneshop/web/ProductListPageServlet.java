@@ -22,7 +22,7 @@ public class ProductListPageServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         productDao = new ArrayListProductDao();
-        ((ArrayListProductDao)productDao).saveDefaultProducts();
+        productDao.saveDefaultProducts();
 
     }
 

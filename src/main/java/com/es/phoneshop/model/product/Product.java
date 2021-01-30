@@ -14,6 +14,8 @@ public class Product {
     private int stock;
     private String imageUrl;
 
+    public Product(){};
+
     public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
         this.id = 0L;
         this.code = code;

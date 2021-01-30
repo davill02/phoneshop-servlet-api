@@ -7,4 +7,7 @@ public interface ProductDao {
     List<Product> findProducts();
     void save(Product product);
     void delete(Long id);
+    void saveDefaultProducts();
+    void deleteAll();
+    int getSize();
 }
