@@ -1,6 +1,7 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.ArrayListProductDao;
+import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 
 import javax.servlet.ServletConfig;
@@ -9,10 +10,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.List;
 
 public class ProductListPageServlet extends HttpServlet {
-    public static final String PRODUCTS = "products";
-    public static final String PAGE_PATH = "/WEB-INF/pages/productList.jsp";
     private ProductDao productDao;
 
     @Override
@@ -20,12 +23,14 @@ public class ProductListPageServlet extends HttpServlet {
         super.init(config);
         productDao = new ArrayListProductDao();
         productDao.saveDefaultProducts();
+
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute(PRODUCTS, productDao.findProducts());
-        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
+        String query = request.getParameter("query");
+        request.setAttribute("products", productDao.findProducts(query));
+        request.getRequestDispatcher("/WEB-INF/pages/productList.jsp").forward(request, response);
     }
 
 

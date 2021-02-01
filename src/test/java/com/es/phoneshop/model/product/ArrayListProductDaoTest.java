@@ -1,5 +1,6 @@
 package com.es.phoneshop.model.product;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,49 +13,51 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ArrayListProductDaoTest {
-    private static final String CODE = "iphone7";
-    private static final String DESCRIPTION = "IPhone 7";
-    private static final BigDecimal PRICE = new BigDecimal(1200);
-    private static final int STOCK = 9;
-    private static final String IMAGE_URL = "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg";
-    private static final int DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK = 12;
-    private static final long EXIST_ID = 1L;
-    private static final long NON_EXIST_ID = 17L;
-    private static final long ZERO_COUNT = 0L;
-    private static final long ONE_COUNT = 1L;
-    private static final int ZERO_STOCK = 0;
-    private static final String CURRENCY_CODE = "USD";
-    private static final Long DEFAULT_ID = 0L;
     private ProductDao productDao;
-    private final Currency usd = Currency.getInstance(CURRENCY_CODE);
+    private Currency usd;
     private Product notDefaultProduct;
 
     @Before
     public void setup() {
-        notDefaultProduct = new Product(CODE, DESCRIPTION, PRICE, usd, STOCK, IMAGE_URL);
+        notDefaultProduct = new Product("iphone7", "IPhone 7", new BigDecimal(1200), usd, 9, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg");
+        usd = Currency.getInstance("USD");
         productDao = new ArrayListProductDao();
         productDao.saveDefaultProducts();
     }
 
     @Test
+    public void shouldFindProductsSgs3First(){
+        List<Product> products = productDao.findProducts("Samsung Galaxy S III");
+
+        assertEquals("sgs3",products.get(0).getCode());
+        assertEquals("sgs",products.get(1).getCode());
+    }
+    @Test
+    public void shouldFindProductSgsFirst(){
+        List<Product> products = productDao.findProducts("Samsung Galaxy S");
+
+        assertEquals("sgs",products.get(0).getCode());
+        assertEquals("sgs3",products.get(1).getCode());
+    }
+    @Test
+    public void shouldFindProductsTwoProducts(){
+        List<Product> products = productDao.findProducts("Palm Pixi Nokia 3310");
+
+        assertEquals("nokia3310",products.get(0).getCode());
+        assertEquals("palmp",products.get(1).getCode());
+        assertEquals(2,products.size());
+    }
+    @Test
     public void shouldFindProductsDefaultProducts() {
-        List<Product> result = productDao.findProducts();
-        
-        assertEquals(DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK, result.size());
+        assertEquals(12, productDao.findProducts("").size());
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void shouldDeleteProduct() {
-        Long id = EXIST_ID;
+        productDao.delete(1L);
 
-        productDao.delete(id);
-
-        long count = productDao
-                .getProducts()
-                .stream()
-                .filter(p -> id.equals(p.getId()))
-                .count();
-        assertEquals(ZERO_COUNT, count);
+        assertEquals(11, productDao.findProducts("").size());
+        productDao.getProduct(1L);
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -68,96 +71,55 @@ public class ArrayListProductDaoTest {
 
         productDao.save(notDefaultProduct);
 
-        long count = productDao
-                .getProducts()
-                .stream()
-                .filter(p -> notDefaultProduct.getDescription().equals(p.getDescription()))
-                .filter(p -> p.getId() != null)
-                .count();
-        assertEquals(ONE_COUNT, count);
+        assertEquals(13, productDao.findProducts("").size());
     }
 
     @Test
     public void shouldSaveNewProduct() {
         productDao.save(notDefaultProduct);
 
-        long count = productDao
-                .getProducts()
-                .stream()
-                .filter(p -> notDefaultProduct.getDescription().equals(p.getDescription()))
-                .count();
-        assertEquals(ONE_COUNT, count);
+        assertEquals(14, productDao.getSize());
+        assertEquals("iphone7", productDao.getProduct(14L).getCode());
     }
 
     @Test
     public void shouldSaveUpdateProduct() {
-        Long existId = EXIST_ID;
+        Long existId = 1L;
         notDefaultProduct.setId(existId);
 
         productDao.save(notDefaultProduct);
 
-        Product product = productDao
-                .getProducts()
-                .stream()
-                .findAny()
-                .get();
-        assertEquals(CODE, product.getCode());
-        assertEquals(existId, product.getId());
+        assertEquals(notDefaultProduct, productDao.getProduct(existId));
+        assertEquals("iphone7", productDao.getProduct(existId).getCode());
     }
 
     @Test
     public void shouldSaveProductWithId() {
-        Long id = NON_EXIST_ID;
+        Long id = 17L;
         notDefaultProduct.setId(id);
 
         productDao.save(notDefaultProduct);
 
-        Product product = productDao
-                .getProducts()
-                .stream()
-                .filter(p -> id.equals(p.getId()))
-                .findAny()
-                .get();
-        assertEquals(notDefaultProduct, product);
+        assertEquals(notDefaultProduct, productDao.getProduct(id));
     }
 
     @Test
     public void shouldGetSize() {
-        int result = productDao.getSize();
-
-        int expected  = productDao.getProducts().size();
-        assertEquals(expected, result);
+        assertEquals(13, productDao.getSize());
     }
 
     @Test
     public void shouldGetSizeSaveProduct() {
         productDao.save(notDefaultProduct);
 
-        int result = productDao.getSize();
-
-        int expected  = productDao.getProducts().size();
-        assertEquals(expected, result);
+        assertEquals(14, productDao.getSize());
     }
 
     @Test
     public void shouldGetSizeDeleteProduct() {
-        productDao.delete(EXIST_ID);
+        productDao.delete(1L);
 
-        int result = productDao.getSize();
-
-        assertEquals(productDao.getProducts().size(), result);
-    }
-
-    @Test
-    public void shouldFindProductById(){
-        Product result = productDao.getProduct(EXIST_ID);
-
-        assertEquals((Long)EXIST_ID,result.getId());
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void shouldFindNonexistProduct(){
-        productDao.getProduct(NON_EXIST_ID);
+        assertEquals(12, productDao.getSize());
     }
 
 
@@ -165,22 +127,16 @@ public class ArrayListProductDaoTest {
     public void shouldDeleteAll() {
         productDao.deleteAll();
 
-        int result = productDao.getSize();
-        Long resultStartId = productDao.getNextId();
-        int expected = productDao.getProducts().size();
-        assertEquals(expected, result);
-        assertEquals(DEFAULT_ID,resultStartId);
+        assertEquals(0, productDao.getSize());
     }
 
     @Test
     public void shouldFindProductsNoResultsByStock() {
         productDao.deleteAll();
-        notDefaultProduct.setStock(ZERO_STOCK);
         productDao.save(notDefaultProduct);
+        notDefaultProduct.setStock(0);
 
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 
     @Test
@@ -189,19 +145,15 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setId(null);
 
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 
     @Test
     public void shouldFindProductsNoResultsByPrice() {
         productDao.deleteAll();
-        notDefaultProduct.setPrice(null);
         productDao.save(notDefaultProduct);
+        notDefaultProduct.setPrice(null);
 
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 }
