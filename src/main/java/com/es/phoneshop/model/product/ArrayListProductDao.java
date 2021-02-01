@@ -1,10 +1,7 @@
 package com.es.phoneshop.model.product;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -13,7 +10,7 @@ public class ArrayListProductDao implements ProductDao {
     private final List<Product> products;
     private Long nextId = 0L;
     private final ReadWriteLock lock;
-
+    private static final double EPS = 10E-13;
 
     public ArrayListProductDao() {
         products = new ArrayList<>();
@@ -54,17 +51,60 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> findProducts() {
+    public List<Product> findProducts(String query) {
         lock.readLock().lock();
+        List<String> strings = strQueryToList(query);
         try {
             return products.stream()
+                    .filter(p -> query == null || query.trim().isEmpty()
+                            || relevantStrings(p.getDescription(), strings) > 0)
                     .filter(p -> p.getId() != null)
                     .filter(p -> p.getStock() > 0)
-                    .filter(p -> p.getPrice()!=null)
+                    .filter(p -> p.getPrice() != null)
+                    .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)))
                     .collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
+    }
+
+    private List<String> strQueryToList(String query) {
+        String tempQuery;
+        List<String> results = new ArrayList<String>();
+        if (query == null) {
+            tempQuery = "";
+        } else {
+            tempQuery = query.trim();
+        }
+        StringTokenizer tokens = new StringTokenizer(tempQuery);
+        while (tokens.hasMoreTokens()) {
+            results.add(tokens.nextToken());
+        }
+        return results;
+    }
+
+    private long countWords(String str) {
+        long result = 0;
+        if (str != null && !str.isEmpty()) {
+            result = str.trim().chars().filter(c -> c == (int) ' ').count();
+        }
+        return result + 1;
+    }
+
+    private long relevantStrings(String description, List<String> strings) {
+        long count = 0L;
+        if (description != null && !description.trim().isEmpty()) {
+            for (String i : strings) {
+                if (description.contains(i)) {
+                    count++;
+                }
+            }
+        }
+        long result = 0L;
+        if (count != 0) {
+            result = countWords(description) + strings.size() - 2 * count + 1;
+        }
+        return result;
     }
 
     @Override

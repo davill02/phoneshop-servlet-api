@@ -1,10 +1,12 @@
 package com.es.phoneshop.model.product;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
@@ -24,15 +26,37 @@ public class ArrayListProductDaoTest {
     }
 
     @Test
+    public void shouldFindProductsSgs3First(){
+        List<Product> products = productDao.findProducts("Samsung Galaxy S III");
+
+        assertEquals("sgs3",products.get(0).getCode());
+        assertEquals("sgs",products.get(1).getCode());
+    }
+    @Test
+    public void shouldFindProductSgsFirst(){
+        List<Product> products = productDao.findProducts("Samsung Galaxy S");
+
+        assertEquals("sgs",products.get(0).getCode());
+        assertEquals("sgs3",products.get(1).getCode());
+    }
+    @Test
+    public void shouldFindProductsTwoProducts(){
+        List<Product> products = productDao.findProducts("Palm Pixi Nokia 3310");
+
+        assertEquals("nokia3310",products.get(0).getCode());
+        assertEquals("palmp",products.get(1).getCode());
+        assertEquals(2,products.size());
+    }
+    @Test
     public void shouldFindProductsDefaultProducts() {
-        assertEquals(12, productDao.findProducts().size());
+        assertEquals(12, productDao.findProducts("").size());
     }
 
     @Test(expected = NoSuchElementException.class)
     public void shouldDeleteProduct() {
         productDao.delete(1L);
 
-        assertEquals(11, productDao.findProducts().size());
+        assertEquals(11, productDao.findProducts("").size());
         productDao.getProduct(1L);
     }
 
@@ -47,7 +71,7 @@ public class ArrayListProductDaoTest {
 
         productDao.save(notDefaultProduct);
 
-        assertEquals(13, productDao.findProducts().size());
+        assertEquals(13, productDao.findProducts("").size());
     }
 
     @Test
@@ -112,7 +136,7 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setStock(0);
 
-        assertTrue(productDao.findProducts().isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 
     @Test
@@ -121,7 +145,7 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setId(null);
 
-        assertTrue(productDao.findProducts().isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 
     @Test
@@ -130,6 +154,6 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setPrice(null);
 
-        assertTrue(productDao.findProducts().isEmpty());
+        assertTrue(productDao.findProducts("").isEmpty());
     }
 }
