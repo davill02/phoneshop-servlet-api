@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArrayListProductDao implements ProductDao {
     private final List<Product> products;
@@ -51,18 +52,32 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> findProducts(String query) {
+    public List<Product> findProducts(String query, SortField sortField, SortOrder sortOrder) {
         lock.readLock().lock();
         List<String> strings = strQueryToList(query);
+        Comparator<Product> comparator;
         try {
-            return products.stream()
+            Stream<Product> productStream = products.stream()
                     .filter(p -> query == null || query.trim().isEmpty()
                             || relevantStrings(p.getDescription(), strings) > 0)
                     .filter(p -> p.getId() != null)
                     .filter(p -> p.getStock() > 0)
                     .filter(p -> p.getPrice() != null)
-                    .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)))
-                    .collect(Collectors.toList());
+                    .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)));
+            if (sortField != null && sortOrder != null) {
+                comparator = Comparator.comparing(p -> {
+                    if (sortField == SortField.description) {
+                        return (Comparable) p.getDescription();
+                    } else {
+                        return (Comparable) p.getPrice();
+                    }
+                });
+                if (sortOrder == SortOrder.desc){
+                   comparator = comparator.reversed();
+                }
+                productStream = productStream.sorted(comparator);
+            }
+            return productStream.collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
@@ -141,17 +156,21 @@ public class ArrayListProductDao implements ProductDao {
     @Override
     public void delete(Long id) {
         lock.writeLock().lock();
+
         try {
-            for (int i = 0; i < products.size(); i++) {
-                if (id.equals(products.get(i).getId())) {
-                    products.remove(i);
-                    break;
+            if (id != null) {
+                for (int i = 0; i < products.size(); i++) {
+                    if (id.equals(products.get(i).getId())) {
+                        products.remove(i);
+                        break;
+                    }
                 }
             }
         } finally {
             lock.writeLock().unlock();
         }
     }
+
 
     public void saveDefaultProducts() {
 

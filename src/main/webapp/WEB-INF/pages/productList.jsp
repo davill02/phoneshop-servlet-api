@@ -16,14 +16,20 @@
     <thead>
       <tr>
         <td>Image</td>
-        <td>Description</td>
-        <td class="price">Price</td>
+        <td>Description
+          <tags:sortedLink sort="description" order="asc"></tags:sortedLink>
+          <tags:sortedLink sort="description" order="desc">desc</tags:sortedLink>
+        </td>
+        <td class="price">Price
+          <tags:sortedLink sort="price" order="asc">asc</tags:sortedLink>
+          <tags:sortedLink sort="price" order="desc">desc</tags:sortedLink>
+        </td>
       </tr>
     </thead>
     <c:forEach var="product" items="${products}">
       <tr>
         <td>
-          <img class="product-tile" src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${product.imageUrl}">
+          <img class="product-tile" src="${product.imageUrl}">
         </td>
         <td>${product.description}</td>
         <td class="price">
