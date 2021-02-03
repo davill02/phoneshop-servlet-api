@@ -1,6 +1,5 @@
 package com.es.phoneshop.model.product;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -16,7 +15,7 @@ public class ArrayListProductDao implements ProductDao {
 
     public static synchronized ProductDao getInstance() {
         if (productDao == null) {
-           productDao = new ArrayListProductDao();
+            productDao = new ArrayListProductDao();
         }
         return productDao;
     }
@@ -64,7 +63,6 @@ public class ArrayListProductDao implements ProductDao {
     public List<Product> findProducts(String query, SortField sortField, SortOrder sortOrder) {
         lock.readLock().lock();
         List<String> strings = strQueryToList(query);
-        Comparator<Product> comparator;
         try {
             Stream<Product> productStream = products.stream()
                     .filter(p -> query == null || query.trim().isEmpty()
@@ -74,22 +72,27 @@ public class ArrayListProductDao implements ProductDao {
                     .filter(p -> p.getPrice() != null)
                     .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)));
             if (sortField != null && sortOrder != null) {
-                comparator = Comparator.comparing(p -> {
-                    if (sortField == SortField.description) {
-                        return (Comparable) p.getDescription();
-                    } else {
-                        return (Comparable) p.getPrice();
-                    }
-                });
-                if (sortOrder == SortOrder.desc) {
-                    comparator = comparator.reversed();
-                }
-                productStream = productStream.sorted(comparator);
+                productStream = productStream.sorted(getProductComparator(sortField, sortOrder));
             }
             return productStream.collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
+    }
+
+    private Comparator<Product> getProductComparator(SortField sortField, SortOrder sortOrder) {
+        Comparator<Product> comparator;
+        comparator = Comparator.comparing(p -> {
+            if (sortField == SortField.description) {
+                return (Comparable) p.getDescription();
+            } else {
+                return (Comparable) p.getPrice();
+            }
+        });
+        if (sortOrder == SortOrder.desc) {
+            comparator = comparator.reversed();
+        }
+        return comparator;
     }
 
     private List<String> strQueryToList(String query) {
@@ -172,7 +175,7 @@ public class ArrayListProductDao implements ProductDao {
 
         try {
             if (id != null) {
-                if(id == nextId){
+                if (id == nextId) {
                     nextId--;
                 }
                 for (int i = 0; i < products.size(); i++) {
@@ -186,7 +189,6 @@ public class ArrayListProductDao implements ProductDao {
             lock.writeLock().unlock();
         }
     }
-
 
 
 }
