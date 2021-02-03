@@ -1,11 +1,9 @@
 package com.es.phoneshop.model.product;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,30 +39,33 @@ public class ArrayListProductDaoTest {
     }
 
     @Test
-    public void shouldFindProductsSgs3First(){
-        List<Product> products = productDao.findProducts("Samsung Galaxy S III",null,null);
+    public void shouldFindProductsSgs3First() {
+        List<Product> products = productDao.findProducts("Samsung Galaxy S III", null, null);
 
-        assertEquals("sgs3",products.get(0).getCode());
-        assertEquals("sgs",products.get(1).getCode());
+        assertEquals("sgs3", products.get(0).getCode());
+        assertEquals("sgs", products.get(1).getCode());
     }
+
     @Test
-    public void shouldFindProductSgsFirst(){
-        List<Product> products = productDao.findProducts("Samsung Galaxy S", null,null);
+    public void shouldFindProductSgsFirst() {
+        List<Product> products = productDao.findProducts("Samsung Galaxy S", null, null);
 
-        assertEquals("sgs",products.get(0).getCode());
-        assertEquals("sgs3",products.get(1).getCode());
+        assertEquals("sgs", products.get(0).getCode());
+        assertEquals("sgs3", products.get(1).getCode());
     }
+
     @Test
-    public void shouldFindProductsTwoProducts(){
-        List<Product> products = productDao.findProducts("Palm Pixi Nokia 3310",null,null);
+    public void shouldFindProductsTwoProducts() {
+        List<Product> products = productDao.findProducts("Palm Pixi Nokia 3310", null, null);
 
-        assertEquals("nokia3310",products.get(0).getCode());
-        assertEquals("palmp",products.get(1).getCode());
-        assertEquals(2,products.size());
+        assertEquals("nokia3310", products.get(0).getCode());
+        assertEquals("palmp", products.get(1).getCode());
+        assertEquals(2, products.size());
     }
+
     @Test
     public void shouldFindProductsDefaultProducts() {
-        assertEquals(12, productDao.findProducts("",null,null).size());
+        assertEquals(12, productDao.findProducts("", null, null).size());
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -73,7 +74,7 @@ public class ArrayListProductDaoTest {
 
         productDao.delete(id);
 
-        assertEquals(11, productDao.findProducts("",null,null).size());
+        assertEquals(11, productDao.findProducts("", null, null).size());
         productDao.getProduct(id);
     }
 
@@ -88,7 +89,7 @@ public class ArrayListProductDaoTest {
 
         productDao.save(notDefaultProduct);
 
-        assertEquals(13, productDao.findProducts("",null,null).size());
+        assertEquals(13, productDao.findProducts("", null, null).size());
     }
 
     @Test
@@ -146,39 +147,44 @@ public class ArrayListProductDaoTest {
 
         assertEquals(0, productDao.getSize());
     }
-    @Test
-    public void shouldFindProductsWithNullQuery(){
-        List<Product> products = productDao.findProducts(null,null,null);
 
-        assertEquals(12,products.size());
+    @Test
+    public void shouldFindProductsWithNullQuery() {
+        List<Product> products = productDao.findProducts(null, null, null);
+
+        assertEquals(12, products.size());
     }
-    @Test
-    public void shouldFindProductsAscByPrice(){
-        List<Product> products = productDao.findProducts("",SortField.price,SortOrder.asc);
 
-        assertEquals("nokia3310",products.get(0).getCode());
-        assertEquals("iphone6",products.get(11).getCode());
+    @Test
+    public void shouldFindProductsAscByPrice() {
+        List<Product> products = productDao.findProducts("", SortField.price, SortOrder.asc);
+
+        assertEquals("nokia3310", products.get(0).getCode());
+        assertEquals("iphone6", products.get(11).getCode());
     }
-    @Test
-    public void shouldFindProductsDescByPrice(){
-        List<Product> products = productDao.findProducts("",SortField.price,SortOrder.desc);
 
-        assertEquals("iphone6",products.get(0).getCode());
-        assertEquals("simc56",products.get(11).getCode());
+    @Test
+    public void shouldFindProductsDescByPrice() {
+        List<Product> products = productDao.findProducts("", SortField.price, SortOrder.desc);
+
+        assertEquals("iphone6", products.get(0).getCode());
+        assertEquals("simc56", products.get(11).getCode());
     }
-    @Test
-    public void shouldFindProductsAscByDescription(){
-        List<Product> products = productDao.findProducts("",SortField.description,SortOrder.asc);
 
-        assertEquals("iphone",products.get(0).getCode());
-        assertEquals("xperiaxz",products.get(11).getCode());
+    @Test
+    public void shouldFindProductsAscByDescription() {
+        List<Product> products = productDao.findProducts("", SortField.description, SortOrder.asc);
+
+        assertEquals("iphone", products.get(0).getCode());
+        assertEquals("xperiaxz", products.get(11).getCode());
     }
-    @Test
-    public void shouldFindProductsDescByDescription(){
-        List<Product> products = productDao.findProducts("",SortField.description,SortOrder.desc);
 
-        assertEquals("xperiaxz",products.get(0).getCode());
-        assertEquals("iphone",products.get(11).getCode());
+    @Test
+    public void shouldFindProductsDescByDescription() {
+        List<Product> products = productDao.findProducts("", SortField.description, SortOrder.desc);
+
+        assertEquals("xperiaxz", products.get(0).getCode());
+        assertEquals("iphone", products.get(11).getCode());
     }
 
     @Test
@@ -187,7 +193,7 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setStock(0);
 
-        assertTrue(productDao.findProducts("",null,null).isEmpty());
+        assertTrue(productDao.findProducts("", null, null).isEmpty());
     }
 
     @Test
@@ -196,7 +202,7 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setId(null);
 
-        assertTrue(productDao.findProducts("",null,null).isEmpty());
+        assertTrue(productDao.findProducts("", null, null).isEmpty());
     }
 
     @Test
@@ -205,6 +211,6 @@ public class ArrayListProductDaoTest {
         productDao.save(notDefaultProduct);
         notDefaultProduct.setPrice(null);
 
-        assertTrue(productDao.findProducts("",null,null).isEmpty());
+        assertTrue(productDao.findProducts("", null, null).isEmpty());
     }
 }

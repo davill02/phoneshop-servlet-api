@@ -14,13 +14,19 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
     private ProductDao productDao;
     boolean startWithDefaultProducts;
 
+    public ProductDaoDemodataServletContextListener() {
+        productDao = ArrayListProductDao.getInstance();
+    }
+
+    public ProductDaoDemodataServletContextListener(ProductDao productDao) {
+        this.productDao = productDao;
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
         startWithDefaultProducts = Boolean.parseBoolean(context.getInitParameter("startWithDefaultProducts"));
-        if (startWithDefaultProducts){
-            productDao = ArrayListProductDao.getInstance();
+        if (startWithDefaultProducts) {
             saveDefaultProducts(productDao);
         }
     }
@@ -29,7 +35,8 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
     public void contextDestroyed(ServletContextEvent sce) {
 
     }
-    private void saveDefaultProducts(ProductDao productDao) {
+
+    public void saveDefaultProducts(ProductDao productDao) {
 
         Currency usd = Currency.getInstance("USD");
         productDao.save(new Product("sgs2", "Samsung Galaxy S II", new BigDecimal(200), usd, 0, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg"));
