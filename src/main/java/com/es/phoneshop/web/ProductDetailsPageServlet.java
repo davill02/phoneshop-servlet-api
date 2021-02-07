@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ProductDetailsPageServlet extends HttpServlet {
+    public static final String ATTR_PRODUCT = "product";
+    public static final String PAGE_PATH = "/WEB-INF/pages/productDetails.jsp";
     private ProductDao productDao;
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -19,10 +21,14 @@ public class ProductDetailsPageServlet extends HttpServlet {
         productDao = ArrayListProductDao.getInstance();
     }
 
+    public void setProductDao(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getPathInfo().substring(1);
-        request.setAttribute("product", productDao.getProduct(Long.parseLong(id)));
-        request.getRequestDispatcher("/WEB-INF/pages/productDetails.jsp").forward(request, response);
+        request.setAttribute(ATTR_PRODUCT, productDao.getProduct(Long.parseLong(id)));
+        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
     }
 }

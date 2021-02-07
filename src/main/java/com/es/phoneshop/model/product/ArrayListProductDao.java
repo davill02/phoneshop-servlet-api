@@ -1,23 +1,54 @@
 package com.es.phoneshop.model.product;
 
-import java.util.*;
+import org.jetbrains.annotations.NotNull;
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 public class ArrayListProductDao implements ProductDao {
+    private static final String PRODUCT_NULL_MSG = "product == null";
+    private static final int ZERO_STOCK = 0;
+    private static final long DEFAULT_ID = 0L;
+    public static final char SPACE = ' ';
+    public static final String EMPTY_STRING = "";
     private static ProductDao productDao = null;
     private final List<Product> products;
-    private Long nextId = 0L;
+    private Long nextId = DEFAULT_ID;
     private final ReadWriteLock lock;
-    private static final double EPS = 10E-13;
 
     public static synchronized ProductDao getInstance() {
         if (productDao == null) {
             productDao = new ArrayListProductDao();
         }
         return productDao;
+    }
+
+    public List<Product> getProducts() {
+        lock.readLock().lock();
+        try {
+            return Collections.unmodifiableList(products);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public Long getNextId() {
+        lock.readLock().lock();
+        try {
+            return nextId;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     private ArrayListProductDao() {
@@ -29,7 +60,7 @@ public class ArrayListProductDao implements ProductDao {
         lock.writeLock().lock();
         try {
             products.clear();
-            nextId = 0L;
+            nextId = DEFAULT_ID;
         } finally {
             lock.writeLock().unlock();
         }
@@ -62,13 +93,13 @@ public class ArrayListProductDao implements ProductDao {
     @Override
     public List<Product> findProducts(String query, SortField sortField, SortOrder sortOrder) {
         lock.readLock().lock();
-        List<String> strings = strQueryToList(query);
+        List<String> strings = queryToList(query);
         try {
             Stream<Product> productStream = products.stream()
                     .filter(p -> query == null || query.trim().isEmpty()
                             || relevantStrings(p.getDescription(), strings) > 0)
                     .filter(p -> p.getId() != null)
-                    .filter(p -> p.getStock() > 0)
+                    .filter(p -> p.getStock() > ZERO_STOCK)
                     .filter(p -> p.getPrice() != null)
                     .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)));
             if (sortField != null && sortOrder != null) {
@@ -95,17 +126,17 @@ public class ArrayListProductDao implements ProductDao {
         return comparator;
     }
 
-    private List<String> strQueryToList(String query) {
+    private List<String> queryToList(String query) {
         String tempQuery;
         List<String> results = new ArrayList<String>();
         if (query == null) {
-            tempQuery = "";
+            tempQuery = EMPTY_STRING;
         } else {
             tempQuery = query.trim();
         }
         StringTokenizer tokens = new StringTokenizer(tempQuery);
         while (tokens.hasMoreTokens()) {
-            results.add(tokens.nextToken());
+            results.add(tokens.nextToken().toLowerCase());
         }
         return results;
     }
@@ -116,7 +147,7 @@ public class ArrayListProductDao implements ProductDao {
             result = str
                     .trim()
                     .chars()
-                    .filter(c -> c == (int) ' ')
+                    .filter(c -> c == (int) SPACE)
                     .count();
         }
         return result + 1;
@@ -124,15 +155,15 @@ public class ArrayListProductDao implements ProductDao {
 
     private long relevantStrings(String description, List<String> strings) {
         long count = 0L;
+        long result = 0L;
         if (description != null && !description.trim().isEmpty()) {
             for (String i : strings) {
-                if (description.contains(i)) {
+                if (description.toLowerCase().contains(i)) {
                     count++;
                 }
             }
         }
-        long result = 0L;
-        if (count != 0) {
+        if (count != 0L) {
             result = countWords(description) + strings.size() - 2 * count + 1;
         }
         return result;
@@ -141,11 +172,11 @@ public class ArrayListProductDao implements ProductDao {
     @Override
     public void save(Product product) {
         if (product == null) {
-            throw new NoSuchElementException("product == null");
+            throw new NoSuchElementException(PRODUCT_NULL_MSG);
         }
         lock.writeLock().lock();
         try {
-            if (product.getId() != null && !product.getId().equals(0L)) {
+            if (product.getId() != null && !product.getId().equals(DEFAULT_ID)) {
                 handleProductWithId(product);
             } else {
                 nextId++;
@@ -157,7 +188,7 @@ public class ArrayListProductDao implements ProductDao {
         }
     }
 
-    private void handleProductWithId(Product product) {
+    private void handleProductWithId(@NotNull Product product) {
         for (int i = 0; i < products.size(); i++) {
             if (product.getId().equals(products.get(i).getId())) {
                 products.set(i, product);
@@ -172,23 +203,21 @@ public class ArrayListProductDao implements ProductDao {
     @Override
     public void delete(Long id) {
         lock.writeLock().lock();
-
         try {
             if (id != null) {
-                if (id == nextId) {
-                    nextId--;
-                }
-                for (int i = 0; i < products.size(); i++) {
-                    if (id.equals(products.get(i).getId())) {
-                        products.remove(i);
-                        break;
-                    }
-                }
+                removeProduct(id);
             }
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-
+    private void removeProduct(@NotNull Long id) {
+        for (int i = 0; i < products.size(); i++) {
+            if (id.equals(products.get(i).getId())) {
+                products.remove(i);
+                break;
+            }
+        }
+    }
 }

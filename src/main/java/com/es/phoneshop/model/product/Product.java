@@ -1,7 +1,12 @@
 package com.es.phoneshop.model.product;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Product {
     private Long id;
@@ -17,11 +22,33 @@ public class Product {
     private Currency currency;
     private int stock;
     private String imageUrl;
+    private SortedSet<PriceHistory> priceHistories;
+    /**
+     * can be null if product dont have history
+     */
 
-    public Product() {
+    public List<PriceHistory> getPriceHistories() {
+        return priceHistories
+                .stream()
+                .collect(Collectors.toList());
     }
 
-    ;
+    public void setPriceHistories(SortedSet<PriceHistory> priceHistories) {
+        this.priceHistories = priceHistories;
+    }
+
+    public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl, SortedSet<PriceHistory> productHistories) {
+        this.id = 0L;
+        this.code = code;
+        this.description = description;
+        this.price = price;
+        this.currency = currency;
+        this.stock = stock;
+        this.imageUrl = imageUrl;
+        this.priceHistories = productHistories;
+    }
+
+    public Product(){};
 
     public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
         this.id = 0L;
@@ -31,6 +58,7 @@ public class Product {
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.priceHistories = new TreeSet<>();
     }
 
     public Product(Long id, String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
@@ -41,6 +69,7 @@ public class Product {
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.priceHistories = new TreeSet<>();
     }
 
     public Long getId() {

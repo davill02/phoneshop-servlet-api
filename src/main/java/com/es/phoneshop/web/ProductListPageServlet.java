@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class ProductListPageServlet extends HttpServlet {
+    private static final String PRODUCTS = "products";
+    private static final String PAGE_PATH = "/WEB-INF/pages/productList.jsp";
+    private static final String PARAM_QUERY = "query";
+    private static final String PARAM_ORDER = "order";
+    private static final String PARAM_SORT = "sort";
     private ProductDao productDao;
 
     @Override
@@ -24,13 +29,13 @@ public class ProductListPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String query = request.getParameter("query");
-        String order = request.getParameter("order");
-        String field = request.getParameter("sort");
-        request.setAttribute("products", productDao.findProducts(query,
+        String query = request.getParameter(PARAM_QUERY);
+        String order = request.getParameter(PARAM_ORDER);
+        String field = request.getParameter(PARAM_SORT);
+        request.setAttribute(PRODUCTS, productDao.findProducts(query,
                 Optional.ofNullable(field).map(SortField::valueOf).orElse(null),
                 Optional.ofNullable(order).map(SortOrder::valueOf).orElse(null)));
-        request.getRequestDispatcher("/WEB-INF/pages/productList.jsp").forward(request, response);
+        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
     }
 
 

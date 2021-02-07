@@ -14,4 +14,8 @@ public interface ProductDao {
     void deleteAll();
 
     int getSize();
+
+    Long getNextId();
+
+    List<Product> getProducts();
 }
