@@ -1,7 +1,6 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 
 import javax.servlet.ServletConfig;
@@ -15,14 +14,11 @@ public class ProductDetailsPageServlet extends HttpServlet {
     public static final String ATTR_PRODUCT = "product";
     public static final String PAGE_PATH = "/WEB-INF/pages/productDetails.jsp";
     private ProductDao productDao;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         productDao = ArrayListProductDao.getInstance();
-    }
-
-    public void setProductDao(ProductDao productDao) {
-        this.productDao = productDao;
     }
 
     @Override
@@ -31,4 +27,9 @@ public class ProductDetailsPageServlet extends HttpServlet {
         request.setAttribute(ATTR_PRODUCT, productDao.getProduct(Long.parseLong(id)));
         request.getRequestDispatcher(PAGE_PATH).forward(request, response);
     }
+
+    public void setProductDao(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
 }

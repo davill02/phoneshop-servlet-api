@@ -10,6 +10,8 @@
     </p>
 
     <form>
+        <input type="hidden" name="sort" value="${param.sort}">
+        <input type="hidden" name="order" value="${param.order}">
         <input name="query" value="${param.query}">
         <button>Search</button>
     </form>
