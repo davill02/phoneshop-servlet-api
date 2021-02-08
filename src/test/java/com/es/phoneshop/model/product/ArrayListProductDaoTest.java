@@ -4,17 +4,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.Currency;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ArrayListProductDaoTest {
-    public static final String SAMSUNG_GALAXY_S_III = "Samsung Galaxy S III";
     private static final String CODE = "iphone7";
     private static final String DESCRIPTION = "IPhone 7";
     private static final BigDecimal PRICE = new BigDecimal(1200);
@@ -25,12 +20,12 @@ public class ArrayListProductDaoTest {
     private static final long NON_EXIST_ID = 17L;
     private static final long ZERO_COUNT = 0L;
     private static final long ONE_COUNT = 1L;
-    private static final int ZERO_STOCK = 0;
     private static final String CURRENCY_CODE = "USD";
     private static final Long DEFAULT_ID = 0L;
     private static final String EMPTY_QUERY = "";
     private static final String CODE_SIMC_56 = "simc56";
     private static final String CODE_XPERIAXZ = "xperiaxz";
+
     private ProductDao productDao;
     private Product notDefaultProduct;
 
@@ -55,22 +50,16 @@ public class ArrayListProductDaoTest {
         notDefaultProduct = new Product(CODE, DESCRIPTION, PRICE, usd, STOCK, IMAGE_URL);
     }
 
-    @Test
-    public void shouldFindProductsDefaultProducts() {
-        List<Product> result = productDao.findProducts(EMPTY_QUERY, null, null);
-
-        assertEquals(DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK, result.size());
-    }
 
     @Test
-    public void shouldFindProductById(){
+    public void shouldFindProductById() {
         Product result = productDao.getProduct(EXIST_ID);
 
-        assertEquals((Long)EXIST_ID,result.getId());
+        assertEquals((Long) EXIST_ID, result.getId());
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void shouldFindNonExistProduct(){
+    public void shouldFindNonExistProduct() {
         productDao.getProduct(NON_EXIST_ID);
     }
 
@@ -192,131 +181,5 @@ public class ArrayListProductDaoTest {
         assertEquals(DEFAULT_ID, resultStartId);
     }
 
-    @Test
-    public void shouldFindProductsWithNullQuery() {
-        List<Product> products = productDao.findProducts(null, null, null);
-
-        assertEquals(DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK, products.size());
-    }
-
-    @Test
-    public void shouldFindProductsAscByPrice() {
-        List<Product> products = productDao.findProducts(EMPTY_QUERY, SortField.price, SortOrder.asc);
-
-        List<BigDecimal> expected = productDao
-                .getProducts()
-                .stream()
-                .filter(product -> product.getPrice() != null && product.getStock() > 0)
-                .map(Product::getPrice)
-                .sorted()
-                .collect(Collectors.toList());
-        List<BigDecimal> result = products
-                .stream()
-                .map(Product::getPrice)
-                .collect(Collectors.toList());
-        assertEquals(expected,result);
-    }
-
-    @Test
-    public void shouldFindProductsDescByPrice() {
-        List<Product> products = productDao.findProducts(EMPTY_QUERY, SortField.price, SortOrder.desc);
-
-        List<BigDecimal> expected = productDao
-                .getProducts()
-                .stream()
-                .filter(product -> product.getPrice()!=null && product.getStock()>0)
-                .map(Product::getPrice)
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
-        List<BigDecimal> result = products
-                .stream()
-                .map(Product::getPrice)
-                .collect(Collectors.toList());
-        assertEquals(expected,result);
-    }
-
-    @Test
-    public void shouldFindProductsAscByDescription() {
-        List<Product> products = productDao.findProducts(EMPTY_QUERY, SortField.description, SortOrder.asc);
-
-        List<String> expected = productDao
-                .getProducts()
-                .stream()
-                .filter(product -> product.getPrice()!=null && product.getStock()>0)
-                .map(Product::getDescription)
-                .sorted()
-                .collect(Collectors.toList());
-        List<String> result = products
-                .stream()
-                .map(Product::getDescription)
-                .collect(Collectors.toList());
-        assertEquals(expected,result);
-    }
-
-    @Test
-    public void shouldFindProductsDescByDescription() {
-        List<Product> products = productDao.findProducts(EMPTY_QUERY, SortField.description, SortOrder.desc);
-
-        List<String> expected = productDao
-                .getProducts()
-                .stream()
-                .filter(product -> product.getPrice()!=null && product.getStock()>0)
-                .map(Product::getDescription)
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
-        List<String> result = products
-                .stream()
-                .map(Product::getDescription)
-                .collect(Collectors.toList());
-        assertEquals(expected,result);
-    }
-
-    @Test
-    public void shouldFindProductsNoResultsById() {
-        productDao.deleteAll();
-        productDao.save(notDefaultProduct);
-        notDefaultProduct.setId(null);
-
-        List<Product> result = productDao.findProducts(EMPTY_QUERY, null, null);
-
-        assertTrue(result.isEmpty());
-    }
-    @Test
-    public void shouldFindProductsNoResultsByStock() {
-        productDao.deleteAll();
-        notDefaultProduct.setStock(0);
-        notDefaultProduct.setStock(ZERO_STOCK);
-        productDao.save(notDefaultProduct);
-
-        List<Product> result = productDao.findProducts(EMPTY_QUERY,null,null);
-
-        assertTrue(result.isEmpty());
-    }
-
-
-    @Test
-    public void shouldFindProductsNoResultsByPrice() {
-        productDao.deleteAll();
-        notDefaultProduct.setPrice(null);
-        productDao.save(notDefaultProduct);
-
-        List<Product> result = productDao.findProducts(EMPTY_QUERY,null,null);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void shouldFindProductByDescription(){
-       List<Product> result = productDao.findProducts(SAMSUNG_GALAXY_S_III,null,null);
-
-       assertEquals(SAMSUNG_GALAXY_S_III,result.get(0).getDescription());
-    }
-
-    @Test
-    public void shouldFindProductByDescriptionInUpperCase(){
-        List<Product> result = productDao.findProducts(SAMSUNG_GALAXY_S_III.toUpperCase(),null,null);
-
-        assertEquals(SAMSUNG_GALAXY_S_III,result.get(0).getDescription());
-    }
 
 }

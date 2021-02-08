@@ -9,6 +9,9 @@ public class PriceHistory {
     private Currency currency;
     private Date date;
 
+    public PriceHistory() {
+    }
+
     public PriceHistory(BigDecimal price, Currency currency, Date date) {
         this.price = price;
         this.currency = currency;

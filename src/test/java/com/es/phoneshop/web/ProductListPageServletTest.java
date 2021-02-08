@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 public class ProductListPageServletTest {
     public static final String PRODUCTS = "products";
     public static final String PAGES_PRODUCT_LIST_JSP = "/WEB-INF/pages/productList.jsp";
+
     @Mock
     private HttpServletRequest request;
     @Mock

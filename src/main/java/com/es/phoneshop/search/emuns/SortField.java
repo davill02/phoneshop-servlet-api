@@ -1,4 +1,4 @@
-package com.es.phoneshop.model.product;
+package com.es.phoneshop.search.emuns;
 
 public enum SortField {
     description, price;
