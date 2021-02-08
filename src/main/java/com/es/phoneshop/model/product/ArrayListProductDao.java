@@ -2,25 +2,17 @@ package com.es.phoneshop.model.product;
 
 import org.jetbrains.annotations.NotNull;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class ArrayListProductDao implements ProductDao {
     private static final String PRODUCT_NULL_MSG = "product == null";
-    private static final int ZERO_STOCK = 0;
     private static final long DEFAULT_ID = 0L;
-    public static final char SPACE = ' ';
-    public static final String EMPTY_STRING = "";
     private static ProductDao productDao = null;
     private final List<Product> products;
     private Long nextId = DEFAULT_ID;
@@ -91,82 +83,13 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> findProducts(String query, SortField sortField, SortOrder sortOrder) {
+    public List<Product> findProducts() {
         lock.readLock().lock();
-        List<String> strings = queryToList(query);
         try {
-            Stream<Product> productStream = products.stream()
-                    .filter(p -> query == null || query.trim().isEmpty()
-                            || relevantStrings(p.getDescription(), strings) > 0)
-                    .filter(p -> p.getId() != null)
-                    .filter(p -> p.getStock() > ZERO_STOCK)
-                    .filter(p -> p.getPrice() != null)
-                    .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)));
-            if (sortField != null && sortOrder != null) {
-                productStream = productStream.sorted(getProductComparator(sortField, sortOrder));
-            }
-            return productStream.collect(Collectors.toList());
+            return Collections.unmodifiableList(products);
         } finally {
             lock.readLock().unlock();
         }
-    }
-
-    private Comparator<Product> getProductComparator(SortField sortField, SortOrder sortOrder) {
-        Comparator<Product> comparator;
-        comparator = Comparator.comparing(p -> {
-            if (sortField == SortField.description) {
-                return (Comparable) p.getDescription();
-            } else {
-                return (Comparable) p.getPrice();
-            }
-        });
-        if (sortOrder == SortOrder.desc) {
-            comparator = comparator.reversed();
-        }
-        return comparator;
-    }
-
-    private List<String> queryToList(String query) {
-        String tempQuery;
-        List<String> results = new ArrayList<String>();
-        if (query == null) {
-            tempQuery = EMPTY_STRING;
-        } else {
-            tempQuery = query.trim();
-        }
-        StringTokenizer tokens = new StringTokenizer(tempQuery);
-        while (tokens.hasMoreTokens()) {
-            results.add(tokens.nextToken().toLowerCase());
-        }
-        return results;
-    }
-
-    private long countWords(String str) {
-        long result = 0;
-        if (str != null && !str.isEmpty()) {
-            result = str
-                    .trim()
-                    .chars()
-                    .filter(c -> c == (int) SPACE)
-                    .count();
-        }
-        return result + 1;
-    }
-
-    private long relevantStrings(String description, List<String> strings) {
-        long count = 0L;
-        long result = 0L;
-        if (description != null && !description.trim().isEmpty()) {
-            for (String i : strings) {
-                if (description.toLowerCase().contains(i)) {
-                    count++;
-                }
-            }
-        }
-        if (count != 0L) {
-            result = countWords(description) + strings.size() - 2 * count + 1;
-        }
-        return result;
     }
 
     @Override
