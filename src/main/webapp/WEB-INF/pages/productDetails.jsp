@@ -2,17 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
-
+<jsp:useBean id="cart" type="com.es.phoneshop.cart.Cart" scope="request"/>
 <jsp:useBean id="product" type="com.es.phoneshop.model.product.Product" scope="request"/>
 <tags:master pageTitle="Product">
-    <p>
+    <p class="description">
             ${product.description}
     </p>
-
-    <table>
+    <p>
+        ${cart.items}
+    </p>
+    <table class="details">
         <tr>
             <td>Image</td>
-            <td><img src="${product.imageUrl}"></td>
+            <td class="image"><img src="${product.imageUrl}"></td>
         </tr>
         <tr>
             <td>code</td>
@@ -26,6 +28,15 @@
             <td>price</td>
             <td><fmt:formatNumber value="${product.price}" type="currency"
                                   currencySymbol="${product.currency.symbol}"/></td>
+        </tr>
+        <tr>
+            <td>quantity</td>
+            <td class="quantity">
+                <form class="quantity" method="post"><input class="quantity" name="quantity"/>
+                    <button class="add2cart">Add to Cart</button>
+                </form>
+            </td>
+
         </tr>
     </table>
 </tags:master>

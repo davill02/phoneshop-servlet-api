@@ -5,15 +5,16 @@
 
 <jsp:useBean id="products" type="java.util.ArrayList" scope="request"/>
 <tags:master pageTitle="Product List">
-    <p>
+
+    <p style="text-align: center">
         Welcome to Expert-Soft training!
     </p>
 
-    <form>
+    <form style="text-align: center;margin: 10px auto;">
         <input name="query" value="${param.query}">
-        <button>Search</button>
+        <button class="search">Search</button>
     </form>
-    <table>
+    <table style="margin: 0 auto">
         <thead>
         <tr>
             <td>Image</td>
@@ -34,7 +35,7 @@
                 </td>
                 <td>
                     <a href="${pageContext.servletContext.contextPath}/products/${product.id}">
-                        ${product.description}
+                            ${product.description}
                     </a>
                 </td>
                 <td class="price">
