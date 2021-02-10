@@ -16,6 +16,7 @@ public class ProductSearchEngine implements SearchEngine<Product> {
     private static final char SPACE = ' ';
     private static final int ZERO_STOCK = 0;
     private static final String EMPTY_STRING = "";
+
     private List<Product> productList;
 
     public ProductSearchEngine(List<Product> productList) {

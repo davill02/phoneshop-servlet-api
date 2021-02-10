@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 public class ProductListPageServletTest {
     public static final String PRODUCTS = "products";
     public static final String PAGES_PRODUCT_LIST_JSP = "/WEB-INF/pages/productList.jsp";
+
     @Mock
     private HttpServletRequest request;
     @Mock

@@ -25,6 +25,7 @@ public class ArrayListProductDaoTest {
     private static final String EMPTY_QUERY = "";
     private static final String CODE_SIMC_56 = "simc56";
     private static final String CODE_XPERIAXZ = "xperiaxz";
+
     private ProductDao productDao;
     private Product notDefaultProduct;
 

@@ -8,15 +8,21 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+import java.util.stream.Collectors;
 
 public class ArrayListProductDao implements ProductDao {
     private static final String PRODUCT_NULL_MSG = "product == null";
     private static final long DEFAULT_ID = 0L;
     private static ProductDao productDao = null;
+
     private final List<Product> products;
     private Long nextId = DEFAULT_ID;
     private final ReadWriteLock lock;
+
+    private ArrayListProductDao() {
+        products = new ArrayList<>();
+        lock = new ReentrantReadWriteLock();
+    }
 
     public static synchronized ProductDao getInstance() {
         if (productDao == null) {
@@ -41,11 +47,6 @@ public class ArrayListProductDao implements ProductDao {
         } finally {
             lock.readLock().unlock();
         }
-    }
-
-    private ArrayListProductDao() {
-        products = new ArrayList<>();
-        lock = new ReentrantReadWriteLock();
     }
 
     public void deleteAll() {
@@ -84,12 +85,7 @@ public class ArrayListProductDao implements ProductDao {
 
     @Override
     public List<Product> findProducts() {
-        lock.readLock().lock();
-        try {
-            return Collections.unmodifiableList(products);
-        } finally {
-            lock.readLock().unlock();
-        }
+        return getProducts();
     }
 
     @Override

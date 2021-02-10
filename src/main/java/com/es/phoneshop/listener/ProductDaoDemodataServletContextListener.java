@@ -18,6 +18,7 @@ import java.util.TreeSet;
 
 public class ProductDaoDemodataServletContextListener implements ServletContextListener {
     public static final String PARAM_START_WITH_DEFAULT_PRODUCTS = "startWithDefaultProducts";
+
     private final ProductDao productDao;
     boolean startWithDefaultProducts;
 
@@ -43,7 +44,7 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
 
     }
 
-    public void saveDefaultProducts(ProductDao productDao) {
+    private void saveDefaultProducts(ProductDao productDao) {
 
         Currency usd = Currency.getInstance("USD");
         Comparator<PriceHistory> comparator = Comparator.comparing(PriceHistory::getDate);
