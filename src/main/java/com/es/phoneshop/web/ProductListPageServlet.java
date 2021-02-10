@@ -21,6 +21,7 @@ public class ProductListPageServlet extends HttpServlet {
     private static final String PARAM_QUERY = "query";
     private static final String PARAM_ORDER = "order";
     private static final String PARAM_SORT = "sort";
+
     private ProductDao productDao;
     private SearchEngine engine;
 

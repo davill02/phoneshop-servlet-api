@@ -1,12 +1,11 @@
 package com.es.phoneshop.model.product;
 
-import com.es.phoneshop.search.emuns.SortField;
-import com.es.phoneshop.search.emuns.SortOrder;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 
 import java.util.List;
 
 public interface ProductDao {
-    Product getProduct(Long id);
+    Product getProduct(Long id) throws ProductNotFoundException;
 
     List<Product> findProducts();
 

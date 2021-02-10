@@ -11,6 +11,8 @@
     </p>
 
     <form style="text-align: center;margin: 10px auto;">
+        <input type="hidden" name="sort" value="${param.sort}">
+        <input type="hidden" name="order" value="${param.order}">
         <input name="query" value="${param.query}">
         <button class="search">Search</button>
     </form>

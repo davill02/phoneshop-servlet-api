@@ -22,7 +22,7 @@
     <servlet-name>productList</servlet-name>
     <url-pattern>/products</url-pattern>
   </servlet-mapping>
-  
+
   <servlet>
     <servlet-name>productDetails</servlet-name>
     <servlet-class>com.es.phoneshop.web.ProductDetailsPageServlet</servlet-class>
@@ -36,7 +36,7 @@
     <location>/WEB-INF/pages/error.jsp</location>
   </error-page>
   <error-page>
-    <exception-type>java.util.NoSuchElementException</exception-type>
+    <exception-type>com.es.phoneshop.model.exceptions.ProductNotFoundException</exception-type>
     <location>/WEB-INF/pages/productNotFound.jsp</location>
   </error-page>
 

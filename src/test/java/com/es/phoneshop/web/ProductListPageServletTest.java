@@ -32,7 +32,7 @@ public class ProductListPageServletTest {
     private RequestDispatcher requestDispatcher;
     @Mock
     private ServletConfig config;
-    private ProductListPageServlet servlet = new ProductListPageServlet();
+    private final ProductListPageServlet servlet = new ProductListPageServlet();
 
     @Before
     public void setup() throws ServletException {

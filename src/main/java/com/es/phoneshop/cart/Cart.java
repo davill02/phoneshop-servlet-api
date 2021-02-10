@@ -1,22 +1,20 @@
 package com.es.phoneshop.cart;
 
-import com.es.phoneshop.model.product.Product;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
-    List<Product> items;
+    List<CartItem> items;
 
     public Cart(){
-        items = new ArrayList<Product>();
+        items = new ArrayList<CartItem>();
     }
 
-    public List<Product> getItems() {
+    public List<CartItem> getItems() {
         return items;
     }
 
-    public void setItems(List<Product> items) {
+    public void setItems(List<CartItem> items) {
         this.items = items;
     }
 }

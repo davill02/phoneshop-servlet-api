@@ -11,6 +11,16 @@
     <p>
         ${cart.items}
     </p>
+    <c:if test="${not empty error}">
+        <p class="error">
+            ${error}
+        </p>
+    </c:if>
+    <c:if test="${param.error eq 'noError'}">
+        <p class="success">
+            ${product.description} added to cart
+        </p>
+    </c:if>
     <table class="details">
         <tr>
             <td>Image</td>
@@ -32,7 +42,8 @@
         <tr>
             <td>quantity</td>
             <td class="quantity">
-                <form class="quantity" method="post"><input class="quantity" name="quantity"/>
+                <form class="quantity" method="post">
+                    <input inputmode="numeric" class="quantity" name="quantity"/>
                     <button class="add2cart">Add to Cart</button>
                 </form>
             </td>

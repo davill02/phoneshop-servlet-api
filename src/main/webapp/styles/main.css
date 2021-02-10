@@ -82,6 +82,22 @@ p.description {
     text-align: center;
 }
 
+p.error{
+    font-size: large;
+    color: red;
+    text-align: center;
+    padding: 20px;
+    background-color: #ffcfa8;
+}
+
+p.success{
+    font-size: large;
+    color: green;
+    text-align: center;
+    padding: 20px;
+    background-color: #baff8f;
+}
+
 /* Popup container */
 .popup {
     position: relative;
