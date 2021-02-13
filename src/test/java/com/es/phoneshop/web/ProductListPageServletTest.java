@@ -1,5 +1,5 @@
 package com.es.phoneshop.web;
-
+import static com.es.phoneshop.web.ServletsConstants.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +21,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductListPageServletTest {
-    public static final String PRODUCTS = "products";
-    public static final String PAGES_PRODUCT_LIST_JSP = "/WEB-INF/pages/productList.jsp";
 
     @Mock
     private HttpServletRequest request;
@@ -45,7 +43,7 @@ public class ProductListPageServletTest {
         servlet.doGet(request, response);
 
         verify(request).setAttribute(eq(PRODUCTS), any());
-        verify(request).getRequestDispatcher(eq(PAGES_PRODUCT_LIST_JSP));
+        verify(request).getRequestDispatcher(eq(LIST_PAGE_PATH));
         verify(requestDispatcher).forward(request, response);
     }
 }

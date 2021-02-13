@@ -34,6 +34,10 @@ img.product-tile {
     max-width: 64px;
 }
 
+imd.recently {
+    max-width: 64px;
+}
+
 /* Page specific styles */
 body.product-list {
 
@@ -54,7 +58,7 @@ button.search {
     height: 30px;
 }
 
-button.add2cart{
+button.add2cart {
     height: 30px;
 }
 
@@ -67,11 +71,11 @@ td.image {
     text-align: center;
 }
 
-td.quantity{
+td.quantity {
     text-align: right;
 }
 
-form.quantity{
+form.quantity {
     margin: 10px auto;
 }
 
@@ -82,7 +86,7 @@ p.description {
     text-align: center;
 }
 
-p.error{
+p.error {
     font-size: large;
     color: red;
     text-align: center;
@@ -90,7 +94,7 @@ p.error{
     background-color: #ffcfa8;
 }
 
-p.success{
+p.success {
     font-size: large;
     color: green;
     text-align: center;
@@ -133,3 +137,21 @@ p.success{
     border-color: #555 transparent transparent transparent;
 }
 
+.recently {
+    display: inline-block; /*Задаем блочно-строчное отображение*/
+    width: 80px;
+    min-width: 80px;
+    vertical-align: top;
+    text-align: center;
+}
+
+.bordering {
+    margin-top: 10px;
+    border: skyblue solid;
+    display: inline-block;
+}
+
+a.recently {
+    text-align: center;
+    height: 40px;
+}

@@ -1,6 +1,7 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.ArrayListProductDao;
+import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.search.emuns.SortField;
 import com.es.phoneshop.search.emuns.SortOrder;
@@ -15,20 +16,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-public class ProductListPageServlet extends HttpServlet {
-    private static final String PRODUCTS = "products";
-    private static final String PAGE_PATH = "/WEB-INF/pages/productList.jsp";
-    private static final String PARAM_QUERY = "query";
-    private static final String PARAM_ORDER = "order";
-    private static final String PARAM_SORT = "sort";
+import static com.es.phoneshop.web.ServletsConstants.LIST_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ORDER;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_QUERY;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_SORT;
+import static com.es.phoneshop.web.ServletsConstants.PRODUCTS;
 
-    private ProductDao productDao;
-    private SearchEngine engine;
+public class ProductListPageServlet extends HttpServlet {
+
+    private SearchEngine<Product> engine;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        productDao = ArrayListProductDao.getInstance();
+        ProductDao productDao = ArrayListProductDao.getInstance();
         engine = new ProductSearchEngine(productDao.findProducts());
     }
 
@@ -40,7 +41,7 @@ public class ProductListPageServlet extends HttpServlet {
         request.setAttribute(PRODUCTS, engine.search(query,
                 Optional.ofNullable(field).map(SortField::valueOf).orElse(null),
                 Optional.ofNullable(order).map(SortOrder::valueOf).orElse(null)));
-        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
+        request.getRequestDispatcher(LIST_PAGE_PATH).forward(request, response);
     }
 
 
