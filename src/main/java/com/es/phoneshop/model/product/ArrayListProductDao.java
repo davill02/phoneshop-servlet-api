@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ArrayListProductDao implements ProductDao {
     private static final String PRODUCT_NULL_MSG = "product == null";
     private static final long DEFAULT_ID = 0L;
-    private static ProductDao productDao = null;
 
+    private static ProductDao productDao = null;
     private final List<Product> products;
     private Long nextId = DEFAULT_ID;
     private final ReadWriteLock lock;

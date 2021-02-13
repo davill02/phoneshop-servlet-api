@@ -16,7 +16,9 @@ import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -36,7 +38,6 @@ public class DefaultCartServiceTest {
     private static final int LESS_THAN_STOCK = 6;
     private static final int ONE_COUNT = 1;
     private static final int ONE_MORE = 1;
-    private static final String ATTR_CART = "cart";
     public static final int INVALID_QUANTITY = -6;
 
     @Mock
@@ -118,6 +119,13 @@ public class DefaultCartServiceTest {
     @Test(expected = InvalidQuantityException.class)
     public void shouldThrowInvalidQuantityException() throws InvalidQuantityException, OutOfStockException {
         cartService.add(cart,ID, INVALID_QUANTITY);
+    }
+
+    @Test
+    public void shouldCreateCartIfRequestNull(){
+        Cart result = cartService.getCart(null);
+
+        assertNotNull(result);
     }
 
 }

@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import static com.es.phoneshop.web.ServletsConstants.PARAM_START_WITH_DEFAULT_PRODUCTS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -19,7 +20,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductDaoDemodataServletContextListenerTest {
-    public static final String PARAM_START_WITH_DEFAULT_PRODUCTS = "startWithDefaultProducts";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final int DEFAULT_SAVE_OCCUR = 13;

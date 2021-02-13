@@ -7,6 +7,10 @@ import com.es.phoneshop.cart.exceptions.InvalidQuantityException;
 import com.es.phoneshop.cart.exceptions.OutOfStockException;
 import com.es.phoneshop.model.product.ArrayListProductDao;
 import com.es.phoneshop.model.product.ProductDao;
+import com.es.phoneshop.recentlyviewed.DefaultRecentlyViewedService;
+import com.es.phoneshop.recentlyviewed.RecentlyViewed;
+import com.es.phoneshop.recentlyviewed.RecentlyViewedService;
+import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,33 +25,47 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-public class ProductDetailsPageServlet extends HttpServlet {
-    public static final String ATTR_PRODUCT = "product";
-    public static final String PAGE_PATH = "/WEB-INF/pages/productDetails.jsp";
-    public static final String PARAM_QUANTITY = "quantity";
-    public static final String ATTR_CART = "cart";
-    public static final String ATTR_ERROR = "error";
-    public static final String NOT_A_NUMBER = "Not a number";
-    public static final String NOT_A_NUMBER_MSG = NOT_A_NUMBER;
-    public static final String PRODUCTS_PATH = "/products";
-    public static final String SUCCESS_MSG = "noError";
-    public static final String PARAM_ERROR = "error";
-    public static final String NEED_INTEGER = "Need integer";
-    public static final String CANT_PARSE_VALUE = "Cant parse value";
-    public static final String TOO_BIG_NUMBER = "Too big number";
+import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
+import static com.es.phoneshop.web.ServletsConstants.ATTR_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.ATTR_PRODUCT;
+import static com.es.phoneshop.web.ServletsConstants.ATTR_RECENTLY_VIEWED;
+import static com.es.phoneshop.web.ServletsConstants.DETAILS_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
+import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
+import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
+import static com.es.phoneshop.web.ServletsExceptionMessages.NEED_INTEGER;
+import static com.es.phoneshop.web.ServletsExceptionMessages.NOT_A_NUMBER;
+import static com.es.phoneshop.web.ServletsExceptionMessages.SUCCESS_MSG;
+import static com.es.phoneshop.web.ServletsExceptionMessages.TOO_BIG_NUMBER;
 
+public class ProductDetailsPageServlet extends HttpServlet {
     private ProductDao productDao;
     private CartService cartService;
     private NumberFormat numberFormat;
-    private Map<String,String> exceptionMap;
+    private Map<String, String> exceptionMap;
+    private RecentlyViewedService recentlyViewedService;
+
+    public RecentlyViewedService getRecentlyViewedService() {
+        return recentlyViewedService;
+    }
+
+    public void setRecentlyViewedService(RecentlyViewedService recentlyViewedService) {
+        this.recentlyViewedService = recentlyViewedService;
+    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         productDao = ArrayListProductDao.getInstance();
         cartService = DefaultCartService.getInstance();
+        recentlyViewedService = DefaultRecentlyViewedService.getInstance();
+        createExceptionMap();
+    }
+
+    private void createExceptionMap() {
         exceptionMap = new HashMap<>();
-        exceptionMap.put(NumberFormatException.class.getName(),NOT_A_NUMBER);
+        exceptionMap.put(NumberFormatException.class.getName(), NOT_A_NUMBER);
         exceptionMap.put(ClassCastException.class.getName(), NEED_INTEGER);
         exceptionMap.put(ParseException.class.getName(), CANT_PARSE_VALUE);
         exceptionMap.put(ArithmeticException.class.getName(), TOO_BIG_NUMBER);
@@ -64,13 +82,41 @@ public class ProductDetailsPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute(ATTR_CART, cartService.getCart(request));
+        request.setAttribute(ATTR_RECENTLY_VIEWED, recentlyViewedService.getRecentlyViewed(request));
         request.setAttribute(ATTR_PRODUCT, productDao.getProduct(parseId(request)));
-        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
+        request.getRequestDispatcher(DETAILS_PAGE_PATH).forward(request, response);
+        RecentlyViewed recentlyViewed = (RecentlyViewed) request.getSession().getAttribute(ATTR_RECENTLY_VIEWED);
+        recentlyViewedService.add(recentlyViewed, productDao.getProduct(parseId(request)));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute(ATTR_PRODUCT, productDao.getProduct(parseId(request)));
+        Integer quantity;
+        quantity = getQuantity(request, response);
+        if (quantity == null) {
+            return;
+        }
+        Cart cart = (Cart) request.getSession().getAttribute(ATTR_CART);
+        if (addToCart(request, response, quantity, cart)) {
+            return;
+        }
+        response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
+                + request.getPathInfo() + "?" + PARAM_ERROR + "=" + SUCCESS_MSG);
+    }
+
+    private boolean addToCart(HttpServletRequest request, HttpServletResponse response, Integer quantity, Cart cart) throws ServletException, IOException {
+        try {
+            cartService.add(cart, parseId(request), Optional.ofNullable(quantity).orElse(0));
+        } catch (OutOfStockException | InvalidQuantityException e) {
+            request.setAttribute(ATTR_ERROR, e.getMessage());
+            doGet(request, response);
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    private Integer getQuantity(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer quantity;
         try {
             quantity = getQuantity(request);
@@ -78,20 +124,9 @@ public class ProductDetailsPageServlet extends HttpServlet {
             String exceptionMessage = exceptionMap.get(e.getClass().getName());
             request.setAttribute(ATTR_ERROR, exceptionMessage);
             doGet(request, response);
-            return;
+            return null;
         }
-        Cart cart = (Cart) request.getSession().getAttribute(ATTR_CART);
-        try {
-            cartService.add(cart, parseId(request), Optional.ofNullable(quantity).orElse(0));
-        } catch (OutOfStockException | InvalidQuantityException e) {
-            request.setAttribute(ATTR_ERROR, e.getMessage());
-            doGet(request, response);
-            return;
-        }
-        request.setAttribute(ATTR_CART, cartService.getCart(request));
-        request.setAttribute(ATTR_ERROR, SUCCESS_MSG);
-        response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
-                + request.getPathInfo() + "?" + PARAM_ERROR + "=" + SUCCESS_MSG);
+        return quantity;
     }
 
     private Integer getQuantity(HttpServletRequest request) throws ParseException, ClassCastException, ArithmeticException {

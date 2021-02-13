@@ -16,8 +16,9 @@ import java.util.GregorianCalendar;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static com.es.phoneshop.web.ServletsConstants.PARAM_START_WITH_DEFAULT_PRODUCTS;
+
 public class ProductDaoDemodataServletContextListener implements ServletContextListener {
-    public static final String PARAM_START_WITH_DEFAULT_PRODUCTS = "startWithDefaultProducts";
 
     private final ProductDao productDao;
     boolean startWithDefaultProducts;
