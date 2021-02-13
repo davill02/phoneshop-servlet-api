@@ -11,8 +11,6 @@ public interface ProductDao {
 
     void delete(Long id);
 
-    void saveDefaultProducts();
-
     void deleteAll();
 
     int getSize();

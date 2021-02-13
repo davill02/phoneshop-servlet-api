@@ -5,11 +5,9 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ArrayListProductDaoTest {
     private static final String CODE = "iphone7";
@@ -22,26 +20,49 @@ public class ArrayListProductDaoTest {
     private static final long NON_EXIST_ID = 17L;
     private static final long ZERO_COUNT = 0L;
     private static final long ONE_COUNT = 1L;
-    private static final int ZERO_STOCK = 0;
     private static final String CURRENCY_CODE = "USD";
     private static final Long DEFAULT_ID = 0L;
+    private static final String EMPTY_QUERY = "";
+    private static final String CODE_SIMC_56 = "simc56";
+    private static final String CODE_XPERIAXZ = "xperiaxz";
+
     private ProductDao productDao;
-    private final Currency usd = Currency.getInstance(CURRENCY_CODE);
     private Product notDefaultProduct;
 
     @Before
     public void setup() {
+        productDao = ArrayListProductDao.getInstance();
+        productDao.deleteAll();
+        Currency usd = Currency.getInstance(CURRENCY_CODE);
+        productDao.save(new Product("sgs2", "Samsung Galaxy S II", new BigDecimal(200), usd, 0, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg"));
+        productDao.save(new Product("sgs3", "Samsung Galaxy S III", new BigDecimal(300), usd, 5, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg"));
+        productDao.save(new Product("sgs", "Samsung Galaxy S", new BigDecimal(100), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg"));
+        productDao.save(new Product("iphone", "Apple iPhone", new BigDecimal(200), usd, 10, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Apple/Apple%20iPhone.jpg"));
+        productDao.save(new Product("iphone6", "Apple iPhone 6", new BigDecimal(1000), usd, 30, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Apple/Apple%20iPhone%206.jpg"));
+        productDao.save(new Product("htces4g", "HTC EVO Shift 4G", new BigDecimal(320), usd, 3, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/HTC/HTC%20EVO%20Shift%204G.jpg"));
+        productDao.save(new Product("sec901", "Sony Ericsson C901", new BigDecimal(420), usd, 30, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Sony/Sony%20Ericsson%20C901.jpg"));
+        productDao.save(new Product(CODE_XPERIAXZ, "Sony Xperia XZ", new BigDecimal(120), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Sony/Sony%20Xperia%20XZ.jpg"));
+        productDao.save(new Product("nokia3310", "Nokia 3310", new BigDecimal(70), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Nokia/Nokia%203310.jpg"));
+        productDao.save(new Product("palmp", "Palm Pixi", new BigDecimal(170), usd, 30, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Palm/Palm%20Pixi.jpg"));
+        productDao.save(new Product(CODE_SIMC_56, "Siemens C56", new BigDecimal(70), usd, 20, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20C56.jpg"));
+        productDao.save(new Product("simc61", "Siemens C61", new BigDecimal(80), usd, 30, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20C61.jpg"));
+        productDao.save(new Product("simsxg75", "Siemens SXG75", new BigDecimal(150), usd, 40, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20SXG75.jpg"));
         notDefaultProduct = new Product(CODE, DESCRIPTION, PRICE, usd, STOCK, IMAGE_URL);
-        productDao = new ArrayListProductDao();
-        productDao.saveDefaultProducts();
     }
 
+
     @Test
-    public void shouldFindProductsDefaultProducts() {
-        List<Product> result = productDao.findProducts();
-        
-        assertEquals(DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK, result.size());
+    public void shouldFindProductById() {
+        Product result = productDao.getProduct(EXIST_ID);
+
+        assertEquals((Long) EXIST_ID, result.getId());
     }
+
+    @Test(expected = NoSuchElementException.class)
+    public void shouldFindNonExistProduct() {
+        productDao.getProduct(NON_EXIST_ID);
+    }
+
 
     @Test
     public void shouldDeleteProduct() {
@@ -125,7 +146,7 @@ public class ArrayListProductDaoTest {
     public void shouldGetSize() {
         int result = productDao.getSize();
 
-        int expected  = productDao.getProducts().size();
+        int expected = productDao.getProducts().size();
         assertEquals(expected, result);
     }
 
@@ -135,7 +156,7 @@ public class ArrayListProductDaoTest {
 
         int result = productDao.getSize();
 
-        int expected  = productDao.getProducts().size();
+        int expected = productDao.getProducts().size();
         assertEquals(expected, result);
     }
 
@@ -145,19 +166,7 @@ public class ArrayListProductDaoTest {
 
         int result = productDao.getSize();
 
-        assertEquals(productDao.getProducts().size(), result);
-    }
-
-    @Test
-    public void shouldFindProductById(){
-        Product result = productDao.getProduct(EXIST_ID);
-
-        assertEquals((Long)EXIST_ID,result.getId());
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void shouldFindNonexistProduct(){
-        productDao.getProduct(NON_EXIST_ID);
+        assertEquals(DEFAULT_SIZE_WITH_NOT_NULL_PRICE_AND_NOT_ZERO_STOCK, result);
     }
 
 
@@ -169,39 +178,8 @@ public class ArrayListProductDaoTest {
         Long resultStartId = productDao.getNextId();
         int expected = productDao.getProducts().size();
         assertEquals(expected, result);
-        assertEquals(DEFAULT_ID,resultStartId);
+        assertEquals(DEFAULT_ID, resultStartId);
     }
 
-    @Test
-    public void shouldFindProductsNoResultsByStock() {
-        productDao.deleteAll();
-        notDefaultProduct.setStock(ZERO_STOCK);
-        productDao.save(notDefaultProduct);
 
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void shouldFindProductsNoResultsById() {
-        productDao.deleteAll();
-        productDao.save(notDefaultProduct);
-        notDefaultProduct.setId(null);
-
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void shouldFindProductsNoResultsByPrice() {
-        productDao.deleteAll();
-        notDefaultProduct.setPrice(null);
-        productDao.save(notDefaultProduct);
-
-        List<Product> result = productDao.findProducts();
-
-        assertTrue(result.isEmpty());
-    }
 }
