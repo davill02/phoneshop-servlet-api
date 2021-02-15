@@ -1,10 +1,14 @@
 package com.es.phoneshop.web;
 
+import java.util.Currency;
+
 public final class ServletsConstants {
     public static final String PRODUCTS = "products";
+    public static final Currency USD = Currency.getInstance("USD");
 
     public static final String DETAILS_PAGE_PATH = "/WEB-INF/pages/productDetails.jsp";
     public static final String LIST_PAGE_PATH = "/WEB-INF/pages/productList.jsp";
+    public static final String CART_PAGE_PATH = "/WEB-INF/pages/cart.jsp";
     public static final String PRODUCTS_PATH = "/products";
 
     public static final String PARAM_QUERY = "query";
@@ -18,6 +22,8 @@ public final class ServletsConstants {
     public static final String ATTR_PRODUCT = "product";
     public static final String ATTR_CART = "cart";
     public static final String ATTR_ERROR = "error";
+
+
 
     private ServletsConstants() {
     }

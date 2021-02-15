@@ -10,7 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.math.BigDecimal;
+
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
+import static com.es.phoneshop.web.ServletsConstants.USD;
 
 
 public class DefaultCartService implements CartService {
@@ -42,7 +45,18 @@ public class DefaultCartService implements CartService {
             Product product = productDao.getProduct(productId);
             CartItem item = findCartItem(cart, productId);
             addCartItemToCart(cart, quantity, product, item);
+            recalculateTotalPrice(cart);
         }
+    }
+
+    private void recalculateTotalPrice(Cart cart) {
+        BigDecimal cartTotalPrice = cart
+                .getItems()
+                .stream()
+                .map(cartItem -> cartItem.getProduct().getPrice().multiply(new BigDecimal(cartItem.getQuantity())))
+                .reduce(BigDecimal::add)
+                .orElse(new BigDecimal(0));
+        cart.setTotalPrice(cartTotalPrice);
     }
 
     private void addCartItemToCart(@NotNull Cart cart, int quantity, @NotNull Product product, CartItem item) throws OutOfStockException {
@@ -90,11 +104,14 @@ public class DefaultCartService implements CartService {
             cart = (Cart) request.getSession().getAttribute(ATTR_CART);
             if (cart == null) {
                 cart = new Cart();
+                cart.setCurrency(USD);
                 request.getSession().setAttribute(ATTR_CART, cart);
             }
         } else {
             cart = new Cart();
+            cart.setCurrency(USD);
         }
+
         return cart;
     }
 }
