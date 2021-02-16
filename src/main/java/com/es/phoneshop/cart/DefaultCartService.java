@@ -7,9 +7,9 @@ import com.es.phoneshop.model.product.ArrayListProductDao;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.math.BigDecimal;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
@@ -49,6 +49,7 @@ public class DefaultCartService implements CartService {
         }
     }
 
+
     private void recalculateTotalPrice(Cart cart) {
         BigDecimal cartTotalPrice = cart
                 .getItems()
@@ -59,19 +60,12 @@ public class DefaultCartService implements CartService {
         cart.setTotalPrice(cartTotalPrice);
     }
 
-    private void addCartItemToCart(@NotNull Cart cart, int quantity, @NotNull Product product, CartItem item) throws OutOfStockException {
+    private void addCartItemToCart(@NotNull Cart cart, int quantity, @NotNull Product product, CartItem item) throws OutOfStockException, InvalidQuantityException {
         if (item == null) {
             addIfNotContainsInCart(quantity, product, cart);
         } else {
-            addIfContainsInCart(quantity, product, item);
+            setQuantity(quantity + item.getQuantity(), item, product);
         }
-    }
-
-    private void addIfContainsInCart(int quantity, @NotNull Product product, CartItem item) throws OutOfStockException {
-        if (product.getStock() < quantity + item.getQuantity()) {
-            throw new OutOfStockException(product.getDescription(), quantity + item.getQuantity(), product.getStock());
-        }
-        item.setQuantity(item.getQuantity() + quantity);
     }
 
     private void addIfNotContainsInCart(int quantity, @NotNull Product product, @NotNull Cart cart) throws OutOfStockException {
@@ -83,6 +77,7 @@ public class DefaultCartService implements CartService {
         cart.getItems().add(item);
     }
 
+    @Nullable
     private CartItem findCartItem(@NotNull Cart cart, @NotNull Long productId) {
         return cart
                 .getItems()
@@ -113,5 +108,28 @@ public class DefaultCartService implements CartService {
         }
 
         return cart;
+    }
+
+    @Override
+    public void update(Cart cart, Long productId, int quantity) throws OutOfStockException, ProductNotFoundException, InvalidQuantityException {
+        CartItem item = null;
+        if (cart != null && productId != null) {
+            item = findCartItem(cart, productId);
+        }
+        Product product = productDao.getProduct(productId);
+        if (item != null) {
+            setQuantity(quantity, item, product);
+        }
+    }
+
+    private void setQuantity(int quantity, @NotNull CartItem item, @NotNull Product product) throws OutOfStockException, InvalidQuantityException {
+        if(quantity <= 0){
+            throw new InvalidQuantityException(quantity);
+        }
+        if (product.getStock() < quantity) {
+            throw new OutOfStockException(product.getDescription(), quantity, product.getStock());
+        } else {
+            item.setQuantity(quantity);
+        }
     }
 }

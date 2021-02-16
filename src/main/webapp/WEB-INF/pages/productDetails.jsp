@@ -51,6 +51,7 @@
 
         </tr>
     </table>
+
     <c:if test="${recentlyViewed.recentlyViewed.size() != 0}"><p>Recently viewed</p></c:if>
     <c:forEach var="subproduct" items="${recentlyViewed.recentlyViewed}"><c:if
             test="${product.id ne subproduct.id}">

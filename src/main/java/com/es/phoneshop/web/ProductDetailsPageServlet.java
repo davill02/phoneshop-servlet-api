@@ -132,9 +132,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
     private Integer getQuantity(HttpServletRequest request) throws ParseException, ClassCastException, ArithmeticException {
         String quantityString = request.getParameter(PARAM_QUANTITY);
         Locale locale = request.getLocale();
-        numberFormat = NumberFormat.getNumberInstance(locale);
-        Integer quantity = Math.toIntExact((Long) numberFormat.parse(quantityString));
-        return quantity;
+        return ServletUtils.parseQuantity(locale,quantityString);
     }
 
     private Long parseId(HttpServletRequest request) {
