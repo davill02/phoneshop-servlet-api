@@ -13,17 +13,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
+import static com.es.phoneshop.web.ServletsConstants.ATTR_EXCEPTION_MAP;
 import static com.es.phoneshop.web.ServletsConstants.CART_PAGE_PATH;
-import static com.es.phoneshop.web.ServletsConstants.CART_PATH;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
-import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
+import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
+import static com.es.phoneshop.web.ServletsExceptionMessages.NEED_INTEGER;
 
 public class CartPageServlet extends HttpServlet {
     private CartService cartService;
+    private Map<Long, String> exceptionMap = new HashMap<>();
+    private Locale locale;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -33,31 +38,34 @@ public class CartPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute(ATTR_EXCEPTION_MAP, exceptionMap);
         request.setAttribute(ATTR_CART, cartService.getCart(request));
         request.getRequestDispatcher(CART_PAGE_PATH).forward(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String[] quantities = request.getParameterValues(PARAM_QUANTITY);
         String[] productIds = request.getParameterValues(PARAM_ID);
+        exceptionMap = new HashMap<>();
         Cart cart = cartService.getCart(request);
+        locale = request.getLocale();
         for (int i = 0; i < quantities.length; i++) {
-            updateCartAndHandleException(request.getLocale(), quantities[i], productIds[i], cart);
+            updateCartAndHandleException(quantities[i], productIds[i], cart);
         }
-        response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH + CART_PATH);
+        doGet(request, response);
     }
 
-    private void updateCartAndHandleException(Locale locale, String quantityString, String productId, Cart cart) {
+    private void updateCartAndHandleException(String quantityString, String productId, Cart cart) {
         try {
             int quantity = ServletUtils.parseQuantity(locale, quantityString);
             cartService.update(cart, Long.parseLong(productId), quantity);
         } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (InvalidQuantityException e) {
-            e.printStackTrace();
-        } catch (OutOfStockException e) {
-            e.printStackTrace();
+            exceptionMap.put(Long.parseLong(productId), CANT_PARSE_VALUE);
+        } catch (InvalidQuantityException | OutOfStockException e) {
+            exceptionMap.put(Long.parseLong(productId), e.getMessage());
+        } catch (ClassCastException e){
+            exceptionMap.put(Long.parseLong(productId), NEED_INTEGER);
         }
     }
 }

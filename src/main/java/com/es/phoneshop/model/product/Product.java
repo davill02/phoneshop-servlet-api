@@ -61,6 +61,12 @@ public class Product implements Serializable {
         this.priceHistories = productHistories;
     }
 
+    public Product(Long id, BigDecimal price, int stock) {
+        this.id = id;
+        this.price = price;
+        this.stock = stock;
+    }
+
     public SortedSet<PriceHistory> getPriceHistories() {
         return priceHistories;
     }

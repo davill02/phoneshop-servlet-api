@@ -14,6 +14,7 @@
                     <td>Description</td>
                     <td class="price">Price</td>
                     <td>Quantity</td>
+                    <td></td>
                 </tr>
                 </thead>
                 <c:forEach var="item" items="${cart.items}">
@@ -31,10 +32,15 @@
                                               currencySymbol="${item.product.currency.symbol}"/>
                         </td>
                         <td>
-                            <form>
-                                <input name="quantity" value="${item.quantity}"/>
-                                <input type="hidden" name="id" value="${item.product.id}"/>
-                            </form>
+                            <input name="quantity" value="${item.quantity}"/>
+                            <p>${exceptionMap[item.product.id]}</p>
+                            <input type="hidden" name="id" value="${item.product.id}"/>
+                        </td>
+                        <td>
+                            <button form="deleteItem"
+                                    formaction="${pageContext.servletContext.contextPath}/products/cart/deleteItem/${item.product.id}">
+                                Delete
+                            </button>
                         </td>
                     </tr>
                 </c:forEach>
@@ -48,6 +54,7 @@
             </table>
             <button class="add2cart">Update</button>
         </form>
+        <form id="deleteItem" method="post"></form>
     </c:if>
     <c:if test="${cart.items.size() eq 0}">
         <p>Cart is empty</p>
