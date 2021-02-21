@@ -4,13 +4,11 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <jsp:useBean id="products" type="java.util.ArrayList" scope="request"/>
+
 <tags:master pageTitle="Product List">
 
     <p style="text-align: center">
         Welcome to Expert-Soft training!
-    </p>
-    <p>
-        <a href="${pageContext.servletContext.contextPath}/products/cart">cart</a>
     </p>
     <form style="text-align: center;margin: 10px auto;">
         <input type="hidden" name="sort" value="${param.sort}">
@@ -18,6 +16,12 @@
         <input name="query" value="${param.query}">
         <button class="search">Search</button>
     </form>
+
+    <c:if test="${param.error eq 'noError' and empty exceptionMap}">
+        <p class="success">
+                ${param.name} added to cart
+        </p>
+    </c:if>
     <table style="margin: 0 auto">
         <thead>
         <tr>
@@ -26,6 +30,7 @@
                 <tags:sortedLink sort="description" order="asc"></tags:sortedLink>
                 <tags:sortedLink sort="description" order="desc">desc</tags:sortedLink>
             </td>
+            <td>Quantity</td>
             <td class="price">Price
                 <tags:sortedLink sort="price" order="asc">asc</tags:sortedLink>
                 <tags:sortedLink sort="price" order="desc">desc</tags:sortedLink>
@@ -33,6 +38,7 @@
         </tr>
         </thead>
         <c:forEach var="item" items="${products}">
+        <form method="post">
             <tr>
                 <td>
                     <img class="product-tile" src="${item.imageUrl}">
@@ -41,6 +47,10 @@
                     <a href="${pageContext.servletContext.contextPath}/products/${item.id}">
                             ${item.description}
                     </a>
+                </td>
+                <td>
+                    <input name="quantity" value="${1}">
+                    <input type="hidden" name="id" value="${item.id}">
                 </td>
                 <td class="price">
                     <div class="popup" onclick="${item.code}Function()">
@@ -65,7 +75,10 @@
                         </script>
                     </div>
                 </td>
+                <td><button>Add to cart</button></td>
             </tr>
+            </form>
         </c:forEach>
     </table>
+
 </tags:master>

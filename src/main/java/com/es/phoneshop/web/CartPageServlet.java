@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ import static com.es.phoneshop.web.ServletsExceptionMessages.NEED_INTEGER;
 
 public class CartPageServlet extends HttpServlet {
     private CartService cartService;
-    private Map<Long, String> exceptionMap = new HashMap<>();
+    private Map<Long, List<String>> exceptionMap = new HashMap<>();
     private Locale locale;
 
     @Override
@@ -61,11 +63,22 @@ public class CartPageServlet extends HttpServlet {
             int quantity = ServletUtils.parseQuantity(locale, quantityString);
             cartService.update(cart, Long.parseLong(productId), quantity);
         } catch (ParseException e) {
-            exceptionMap.put(Long.parseLong(productId), CANT_PARSE_VALUE);
+            exceptionMap.put(Long.parseLong(productId), returnMessageAndQueryList(CANT_PARSE_VALUE, quantityString));
         } catch (InvalidQuantityException | OutOfStockException e) {
-            exceptionMap.put(Long.parseLong(productId), e.getMessage());
-        } catch (ClassCastException e){
-            exceptionMap.put(Long.parseLong(productId), NEED_INTEGER);
+            exceptionMap.put(Long.parseLong(productId), returnMessageAndQueryList(e.getMessage(), quantityString));
+        } catch (ClassCastException e) {
+            exceptionMap.put(Long.parseLong(productId), returnMessageAndQueryList(NEED_INTEGER, quantityString));
         }
+    }
+
+    private List<String> returnMessageAndQueryList(String message, String query) {
+        List<String> messages = new ArrayList<>();
+        messages.add(message);
+        messages.add(query);
+        return messages;
+    }
+
+    public void setCartService(CartService cartService) {
+        this.cartService = cartService;
     }
 }

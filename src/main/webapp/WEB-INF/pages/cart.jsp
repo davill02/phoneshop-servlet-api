@@ -4,7 +4,7 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <jsp:useBean id="cart" scope="session" type="com.es.phoneshop.cart.Cart"/>
 <tags:master pageTitle="Cart">
-    <p>Cart</p>
+    <p style="text-align: center">Cart</p>
     <c:if test="${cart.items.size() ne 0}">
         <form method="post">
             <table style="margin: 0 auto">
@@ -32,8 +32,13 @@
                                               currencySymbol="${item.product.currency.symbol}"/>
                         </td>
                         <td>
-                            <input name="quantity" value="${item.quantity}"/>
-                            <p>${exceptionMap[item.product.id]}</p>
+                            <c:if test="${empty exceptionMap[item.product.id][0]}">
+                                <input name="quantity" value="${item.quantity}"/>
+                            </c:if>
+                            <c:if test="${not empty exceptionMap[item.product.id][0]}">
+                                <input name="quantity" value="${exceptionMap[item.product.id][1]}"/>
+                                <p class="error">${exceptionMap[item.product.id][0]}</p>
+                            </c:if>
                             <input type="hidden" name="id" value="${item.product.id}"/>
                         </td>
                         <td>
@@ -50,16 +55,19 @@
                         <fmt:formatNumber value="${cart.totalPrice}" type="currency"
                                           currencySymbol="${cart.currency.symbol}"/>
                     </td>
+                    <td>Total quantity: ${cart.totalQuantity}</td>
+                    <td>
+                        <button class="add2cart">Update</button>
+                    </td>
                 </tr>
             </table>
-            <button class="add2cart">Update</button>
         </form>
         <form id="deleteItem" method="post"></form>
     </c:if>
     <c:if test="${cart.items.size() eq 0}">
-        <p>Cart is empty</p>
-        <p>You can choose products</p>
-        <form>
+        <p style="text-align: center">Cart is empty</p>
+        <p style="text-align: center">You can choose products</p>
+        <form style="text-align: center">
             <input type="button" value="Choose products"
                    onclick="window.location.href = '${pageContext.servletContext.contextPath}/products';">
         </form>

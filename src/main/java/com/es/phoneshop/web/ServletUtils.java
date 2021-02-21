@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.util.Locale;
 
 public final class ServletUtils {
-    private ServletUtils(){
+    private ServletUtils() {
     }
 
     public static int parseQuantity(Locale locale, String quantityString) throws ParseException {
@@ -14,4 +14,5 @@ public final class ServletUtils {
         Integer quantity = Math.toIntExact((Long) numberFormat.parse(quantityString));
         return quantity;
     }
+
 }

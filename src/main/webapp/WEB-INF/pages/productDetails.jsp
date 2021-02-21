@@ -17,7 +17,7 @@
                 ${error}
         </p>
     </c:if>
-    <c:if test="${param.error eq 'noError'}">
+    <c:if test="${param.error eq 'noError' and empty error}">
         <p class="success">
                 ${product.description} added to cart
         </p>
@@ -44,7 +44,7 @@
             <td>quantity</td>
             <td class="quantity">
                 <form class="quantity" method="post">
-                    <input inputmode="numeric" class="quantity" name="quantity"/>
+                    <input inputmode="numeric" class="quantity" value="${1}" name="quantity"/>
                     <button class="add2cart">Add to Cart</button>
                 </form>
             </td>

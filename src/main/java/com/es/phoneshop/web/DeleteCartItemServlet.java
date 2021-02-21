@@ -35,4 +35,8 @@ public class DeleteCartItemServlet extends HttpServlet {
         }
         response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH + CART_PATH);
     }
+
+    public void setCartService(CartService cartService) {
+        this.cartService = cartService;
+    }
 }
