@@ -75,7 +75,6 @@ public class Product implements Serializable {
         this.priceHistories = priceHistories;
     }
 
-
     public Long getId() {
         return id;
     }

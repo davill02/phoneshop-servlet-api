@@ -10,7 +10,6 @@ import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 
-
 public class ArrayListProductDaoTest {
     private static final String CODE = "iphone7";
     private static final String DESCRIPTION = "IPhone 7";
@@ -63,7 +62,6 @@ public class ArrayListProductDaoTest {
     public void shouldFindNonExistProduct() {
             productDao.getProduct(NON_EXIST_ID);
     }
-
 
     @Test
     public void shouldDeleteProduct() {

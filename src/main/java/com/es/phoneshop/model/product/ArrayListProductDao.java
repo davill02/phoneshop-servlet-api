@@ -16,6 +16,7 @@ public class ArrayListProductDao implements ProductDao {
     private static final long DEFAULT_ID = 0L;
 
     private static ProductDao productDao = null;
+
     private final List<Product> products;
     private Long nextId = DEFAULT_ID;
     private final ReadWriteLock lock;

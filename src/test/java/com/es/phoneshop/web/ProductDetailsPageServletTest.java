@@ -52,6 +52,7 @@ public class ProductDetailsPageServletTest {
     private HttpServletResponse response;
     @Mock
     private RequestDispatcher dispatcher;
+
     @Mock
     private HttpSession session;
     @Mock
@@ -62,6 +63,7 @@ public class ProductDetailsPageServletTest {
     private RecentlyViewedService recentlyViewedService;
 
     private ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
+
 
     @Before
     public void setup() throws ServletException {

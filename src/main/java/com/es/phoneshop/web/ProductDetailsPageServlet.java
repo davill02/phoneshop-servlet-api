@@ -35,6 +35,7 @@ public class ProductDetailsPageServlet extends AddingToCartServlet {
         this.recentlyViewedService = recentlyViewedService;
     }
 
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -58,10 +59,6 @@ public class ProductDetailsPageServlet extends AddingToCartServlet {
         super.setCartService(cartService);
     }
 
-    public void setProductDao(ProductDao productDao) {
-        this.productDao = productDao;
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -72,4 +69,9 @@ public class ProductDetailsPageServlet extends AddingToCartServlet {
         RecentlyViewed recentlyViewed = (RecentlyViewed) request.getSession().getAttribute(ATTR_RECENTLY_VIEWED);
         recentlyViewedService.add(recentlyViewed, productDao.getProduct(parseId(request)));
     }
+
+    public void setProductDao(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
 }

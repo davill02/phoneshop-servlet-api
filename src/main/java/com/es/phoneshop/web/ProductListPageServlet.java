@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+
 import static com.es.phoneshop.web.ServletsConstants.LIST_PAGE_PATH;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
@@ -28,7 +29,6 @@ import static com.es.phoneshop.web.ServletsExceptionMessages.SUCCESS_MSG;
 public class ProductListPageServlet extends AddingToCartServlet {
 
     private SearchEngine<Product> engine;
-
 
     @Override
     public void init(ServletConfig config) throws ServletException {
