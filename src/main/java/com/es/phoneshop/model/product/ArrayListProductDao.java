@@ -1,5 +1,6 @@
 package com.es.phoneshop.model.product;
 
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ArrayListProductDao implements ProductDao {
     private static final String PRODUCT_NULL_MSG = "product == null";
     private static final long DEFAULT_ID = 0L;
+
     private static ProductDao productDao = null;
 
     private final List<Product> products;
@@ -69,14 +71,14 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public Product getProduct(Long id) throws NoSuchElementException {
+    public Product getProduct(Long id) throws ProductNotFoundException {
         lock.readLock().lock();
         try {
             return products
                     .stream()
                     .filter(p -> id.equals(p.getId()))
                     .findAny()
-                    .get();
+                    .orElseThrow(ProductNotFoundException::new);
         } finally {
             lock.readLock().unlock();
         }

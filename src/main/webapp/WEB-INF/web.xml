@@ -22,7 +22,7 @@
     <servlet-name>productList</servlet-name>
     <url-pattern>/products</url-pattern>
   </servlet-mapping>
-  
+
   <servlet>
     <servlet-name>productDetails</servlet-name>
     <servlet-class>com.es.phoneshop.web.ProductDetailsPageServlet</servlet-class>
@@ -32,11 +32,38 @@
     <url-pattern>/products/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>cart</servlet-name>
+    <servlet-class>com.es.phoneshop.web.CartPageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>cart</servlet-name>
+    <url-pattern>/products/cart</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>deleteItem</servlet-name>
+    <servlet-class>com.es.phoneshop.web.DeleteCartItemServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>deleteItem</servlet-name>
+    <url-pattern>/products/cart/deleteItem/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>minicart</servlet-name>
+    <servlet-class>com.es.phoneshop.web.MiniCartServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>minicart</servlet-name>
+    <url-pattern>/cart/minicart</url-pattern>
+  </servlet-mapping>
+
   <error-page>
     <location>/WEB-INF/pages/error.jsp</location>
   </error-page>
   <error-page>
-    <exception-type>java.util.NoSuchElementException</exception-type>
+    <exception-type>com.es.phoneshop.model.exceptions.ProductNotFoundException</exception-type>
     <location>/WEB-INF/pages/productNotFound.jsp</location>
   </error-page>
 

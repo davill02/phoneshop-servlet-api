@@ -1,6 +1,7 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.ArrayListProductDao;
+import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.search.emuns.SortField;
 import com.es.phoneshop.search.emuns.SortOrder;
@@ -9,25 +10,30 @@ import com.es.phoneshop.search.engine.SearchEngine;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-public class ProductListPageServlet extends HttpServlet {
-    private static final String PRODUCTS = "products";
-    private static final String PAGE_PATH = "/WEB-INF/pages/productList.jsp";
-    private static final String PARAM_QUERY = "query";
-    private static final String PARAM_ORDER = "order";
-    private static final String PARAM_SORT = "sort";
-    private ProductDao productDao;
-    private SearchEngine engine;
+
+import static com.es.phoneshop.web.ServletsConstants.LIST_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ORDER;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_QUERY;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_SORT;
+import static com.es.phoneshop.web.ServletsConstants.PRODUCTS;
+import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
+import static com.es.phoneshop.web.ServletsExceptionMessages.SUCCESS_MSG;
+
+public class ProductListPageServlet extends AddingToCartServlet {
+
+    private SearchEngine<Product> engine;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        productDao = ArrayListProductDao.getInstance();
+        ProductDao productDao = ArrayListProductDao.getInstance();
         engine = new ProductSearchEngine(productDao.findProducts());
     }
 
@@ -39,8 +45,18 @@ public class ProductListPageServlet extends HttpServlet {
         request.setAttribute(PRODUCTS, engine.search(query,
                 Optional.ofNullable(field).map(SortField::valueOf).orElse(null),
                 Optional.ofNullable(order).map(SortOrder::valueOf).orElse(null)));
-        request.getRequestDispatcher(PAGE_PATH).forward(request, response);
+        request.getRequestDispatcher(LIST_PAGE_PATH).forward(request, response);
     }
 
+    @Override
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
+                + "?" +  PARAM_ERROR + "=" + SUCCESS_MSG);
+    }
 
+    @Override
+    protected Long parseId(HttpServletRequest request) {
+        String id = request.getParameter(PARAM_ID);
+        return Long.parseLong(id);
+    }
 }

@@ -87,12 +87,11 @@ public class ProductSearchEngineTest {
                 .collect(Collectors.toList());
 
         List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.price, SortOrder.asc);
-
-
         List<BigDecimal> result = products
                 .stream()
                 .map(Product::getPrice)
                 .collect(Collectors.toList());
+
         assertEquals(expected, result);
     }
 
@@ -187,7 +186,6 @@ public class ProductSearchEngineTest {
         ((ProductSearchEngine) searchEngine).setProductList(productList);
         notDefaultProduct.setStock(ZERO_STOCK);
 
-
         List<Product> result = searchEngine.search(EMPTY_QUERY, null, null);
 
         assertTrue(result.isEmpty());
@@ -200,7 +198,6 @@ public class ProductSearchEngineTest {
         productList.add(notDefaultProduct);
         ((ProductSearchEngine) searchEngine).setProductList(productList);
         notDefaultProduct.setPrice(null);
-
 
         List<Product> result = searchEngine.search(EMPTY_QUERY, null, null);
 
@@ -222,3 +219,4 @@ public class ProductSearchEngineTest {
     }
 
 }
+

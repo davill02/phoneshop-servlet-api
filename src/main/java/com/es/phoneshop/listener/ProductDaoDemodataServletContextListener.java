@@ -8,19 +8,23 @@ import com.es.phoneshop.model.product.ProductDao;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Currency;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
+
+import static com.es.phoneshop.web.ServletsConstants.PARAM_START_WITH_DEFAULT_PRODUCTS;
 
 public class ProductDaoDemodataServletContextListener implements ServletContextListener {
-    public static final String PARAM_START_WITH_DEFAULT_PRODUCTS = "startWithDefaultProducts";
 
     private final ProductDao productDao;
-    boolean startWithDefaultProducts;
+    private boolean startWithDefaultProducts;
 
     public ProductDaoDemodataServletContextListener() {
         productDao = ArrayListProductDao.getInstance();
@@ -47,7 +51,8 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
     private void saveDefaultProducts(ProductDao productDao) {
 
         Currency usd = Currency.getInstance("USD");
-        Comparator<PriceHistory> comparator = Comparator.comparing(PriceHistory::getDate);
+        Function<PriceHistory, Date> function = (Function<PriceHistory, Date> & Serializable) (PriceHistory p) -> p.getDate();
+        Comparator<PriceHistory> comparator = Comparator.comparing(function);
         SortedSet<PriceHistory> productHistories = new TreeSet<>(comparator);
         Calendar calendar = new GregorianCalendar(100, Calendar.JANUARY, 0);
         calendar.set(2000, Calendar.AUGUST, 2);

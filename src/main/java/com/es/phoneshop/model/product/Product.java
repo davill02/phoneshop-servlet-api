@@ -1,13 +1,12 @@
 package com.es.phoneshop.model.product;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
-public class Product {
+public class Product implements Serializable {
     private Long id;
     private String code;
     private String description;
@@ -62,6 +61,12 @@ public class Product {
         this.priceHistories = productHistories;
     }
 
+    public Product(Long id, BigDecimal price, int stock) {
+        this.id = id;
+        this.price = price;
+        this.stock = stock;
+    }
+
     public SortedSet<PriceHistory> getPriceHistories() {
         return priceHistories;
     }
@@ -69,7 +74,6 @@ public class Product {
     public void setPriceHistories(SortedSet<PriceHistory> priceHistories) {
         this.priceHistories = priceHistories;
     }
-
 
     public Long getId() {
         return id;

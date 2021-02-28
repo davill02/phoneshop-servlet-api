@@ -1,5 +1,6 @@
 package com.es.phoneshop.model.product;
 
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,6 @@ public class ArrayListProductDaoTest {
     private static final long ONE_COUNT = 1L;
     private static final String CURRENCY_CODE = "USD";
     private static final Long DEFAULT_ID = 0L;
-    private static final String EMPTY_QUERY = "";
     private static final String CODE_SIMC_56 = "simc56";
     private static final String CODE_XPERIAXZ = "xperiaxz";
 
@@ -52,17 +52,16 @@ public class ArrayListProductDaoTest {
 
 
     @Test
-    public void shouldFindProductById() {
+    public void shouldFindProductById() throws ProductNotFoundException {
         Product result = productDao.getProduct(EXIST_ID);
 
         assertEquals((Long) EXIST_ID, result.getId());
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test(expected = ProductNotFoundException.class)
     public void shouldFindNonExistProduct() {
-        productDao.getProduct(NON_EXIST_ID);
+            productDao.getProduct(NON_EXIST_ID);
     }
-
 
     @Test
     public void shouldDeleteProduct() {
@@ -101,12 +100,12 @@ public class ArrayListProductDaoTest {
     @Test
     public void shouldSaveNewProduct() {
         productDao.save(notDefaultProduct);
-
         long count = productDao
                 .getProducts()
                 .stream()
                 .filter(p -> notDefaultProduct.getDescription().equals(p.getDescription()))
                 .count();
+
         assertEquals(ONE_COUNT, count);
     }
 
@@ -116,12 +115,12 @@ public class ArrayListProductDaoTest {
         notDefaultProduct.setId(existId);
 
         productDao.save(notDefaultProduct);
-
         Product product = productDao
                 .getProducts()
                 .stream()
                 .findAny()
                 .get();
+
         assertEquals(CODE, product.getCode());
         assertEquals(existId, product.getId());
     }
@@ -132,31 +131,33 @@ public class ArrayListProductDaoTest {
         notDefaultProduct.setId(id);
 
         productDao.save(notDefaultProduct);
-
         Product product = productDao
                 .getProducts()
                 .stream()
                 .filter(p -> id.equals(p.getId()))
                 .findAny()
                 .get();
+
         assertEquals(notDefaultProduct, product);
     }
 
     @Test
     public void shouldGetSize() {
+        int expected = productDao.getProducts().size();
+
         int result = productDao.getSize();
 
-        int expected = productDao.getProducts().size();
         assertEquals(expected, result);
     }
 
     @Test
     public void shouldGetSizeSaveProduct() {
         productDao.save(notDefaultProduct);
+        int expected = productDao.getProducts().size();
 
         int result = productDao.getSize();
 
-        int expected = productDao.getProducts().size();
+
         assertEquals(expected, result);
     }
 
@@ -173,10 +174,11 @@ public class ArrayListProductDaoTest {
     @Test
     public void shouldDeleteAll() {
         productDao.deleteAll();
+        int expected = productDao.getProducts().size();
 
         int result = productDao.getSize();
         Long resultStartId = productDao.getNextId();
-        int expected = productDao.getProducts().size();
+
         assertEquals(expected, result);
         assertEquals(DEFAULT_ID, resultStartId);
     }
