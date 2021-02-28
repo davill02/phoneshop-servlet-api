@@ -18,16 +18,16 @@ public class PersonalDeliveryData {
     private String address;
     @NotNull(message = "Cant be null")
     @Future(message = "We cant deliver in past")
-    private Date deliveryDate;
+    private Date date;
     @NotNull
-    @Pattern(regexp = "(\\+?)(\\d(\\s?)){7}(\\d(\\s?))*")
+    @Pattern(regexp = "(\\+?)(\\d(\\s?)){7}(\\d(\\s?))*", message = "Wrong number")
     private String phone;
 
     public PersonalDeliveryData(String firstname, String lastname, String deliveryAddress, Date deliveryDate, String phone) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.address = deliveryAddress;
-        this.deliveryDate = deliveryDate;
+        this.date = deliveryDate;
         this.phone = phone;
     }
 
@@ -55,12 +55,12 @@ public class PersonalDeliveryData {
         this.address = address;
     }
 
-    public Date getDeliveryDate() {
-        return deliveryDate;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
-        this.deliveryDate = deliveryDate;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getPhone() {

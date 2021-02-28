@@ -165,3 +165,10 @@ label.form_radio{
     line-height: 18px;
     user-select: none;
 }
+span.red{
+    color: red;
+}
+button.next{
+    alignment: right;
+    margin-right: 20px;
+}

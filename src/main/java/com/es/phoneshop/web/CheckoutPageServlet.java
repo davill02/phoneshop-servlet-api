@@ -8,6 +8,7 @@ import com.es.phoneshop.order.Order;
 import com.es.phoneshop.order.OrderService;
 import com.es.phoneshop.order.PaymentType;
 import com.es.phoneshop.order.PersonalDeliveryData;
+import com.es.phoneshop.order.exceptions.InvalidOrderException;
 import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.ServletConfig;
@@ -20,8 +21,8 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,9 +36,12 @@ import static com.es.phoneshop.web.ServletsConstants.*;
 public class CheckoutPageServlet extends HttpServlet {
     public static final String EMPTY_STRING = "";
     public static final String CANT_PARSE_DATE = "Cant parse date";
+    public static final String HTML_INPUT_DATE_PATTERN = "yyyy-MM-dd";
+
+
     private CartService cartService;
     private OrderService orderService;
-    private DateFormat dateFormat;
+    private SimpleDateFormat simpleDateFormat;
     private Map<String, List<String>> exceptionMap;
     private boolean isSentExceptions = false;
 
@@ -46,6 +50,7 @@ public class CheckoutPageServlet extends HttpServlet {
         super.init(config);
         cartService = DefaultCartService.getInstance();
         orderService = DefaultOrderService.getInstance();
+        simpleDateFormat = new SimpleDateFormat(HTML_INPUT_DATE_PATTERN);
         exceptionMap = new HashMap<>();
     }
 
@@ -66,7 +71,6 @@ public class CheckoutPageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         exceptionMap.clear();
-        dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, request.getLocale());
         String firstname = request.getParameter(PARAM_FIRSTNAME);
         String lastname = request.getParameter(PARAM_LASTNAME);
         String address = request.getParameter(PARAM_ADDRESS);
@@ -74,12 +78,26 @@ public class CheckoutPageServlet extends HttpServlet {
         String phone = request.getParameter(PARAM_PHONE);
         String paymentType = request.getParameter(PARAM_PAYMENT_TYPE);
         fillExceptionMap(firstname, lastname, address, dateString, phone);
-        Date date = getDate(dateString);
-        PersonalDeliveryData person = new PersonalDeliveryData(firstname, lastname, address, date, phone);
+        try {
+            if (cartService.getCart(request) != null
+                    && orderService.isAvailableInStock(cartService.getCart(request))) {
+                Date date = getDate(dateString);
+                PersonalDeliveryData person = new PersonalDeliveryData(firstname, lastname, address, date, phone);
+                validateAndChoosePage(request, response, paymentType, person);
+                return;
+            }
+        } catch (InvalidOrderException ignored) {
+        }
+        response.sendRedirect(request.getContextPath() + PRODUCTS_PATH + CART_PATH
+                + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_OUT_OF_STOCK);
+    }
+
+    private void validateAndChoosePage(HttpServletRequest request, HttpServletResponse response, String paymentType, PersonalDeliveryData person) throws IOException, ServletException, InvalidOrderException {
         Set<ConstraintViolation<PersonalDeliveryData>> violations = getConstraintViolations(person);
         if (violations.isEmpty()) {
             Order orderWithSecureId = handleOrder(request, paymentType, person);
-            response.sendRedirect(getServletContext().getContextPath() + ORDER_PATH + OVERVIEW_PATH + "/" + orderWithSecureId.getSecureId());
+            response.sendRedirect(getServletContext().getContextPath()
+                    + ORDER_PATH + OVERVIEW_PATH + "/" + orderWithSecureId.getSecureId());
         } else {
             fillExceptionMap(violations);
             isSentExceptions = true;
@@ -88,36 +106,42 @@ public class CheckoutPageServlet extends HttpServlet {
         }
     }
 
+
     private void fillExceptionMap(Set<ConstraintViolation<PersonalDeliveryData>> violations) {
         for (ConstraintViolation<PersonalDeliveryData> i : violations) {
             exceptionMap.put(i.getPropertyPath().toString(), getValidInfoList(i));
         }
     }
 
-    private Order handleOrder(HttpServletRequest request, String paymentType, PersonalDeliveryData person) {
+    private Order handleOrder(HttpServletRequest request, String paymentType, PersonalDeliveryData person) throws InvalidOrderException {
         Order order = orderService.getOrder(cartService.getCart(request));
         order.setPerson(person);
         order.setType(getPaymentType(paymentType));
         String secureId = UUID.randomUUID().toString();
+        while (orderService.containsOrder(secureId)) {
+            secureId = UUID.randomUUID().toString();
+        }
         order.setSecureId(secureId);
         orderService.placeOrder(order);
+        request.getSession().removeAttribute(ATTR_CART);
         return order;
     }
+
 
     @Nullable
     private Date getDate(String dateString) {
         Date date = null;
         try {
-            date = dateFormat.parse(dateString);
+            date = simpleDateFormat.parse(dateString);
         } catch (ParseException e) {
-            putDateException();
+            putDateException(dateString);
         }
         return date;
     }
 
-    private void putDateException() {
+    private void putDateException(String dateString) {
         List<String> info = new ArrayList<>();
-        info.add(PARAM_DATE);
+        info.add(dateString);
         info.add(CANT_PARSE_DATE);
         exceptionMap.put(PARAM_DATE, info);
     }

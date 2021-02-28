@@ -11,6 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.USD;
@@ -20,6 +24,7 @@ public class DefaultCartService implements CartService {
 
     private static DefaultCartService cartService;
     private ProductDao productDao;
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     private DefaultCartService() {
         productDao = ArrayListProductDao.getInstance();
@@ -37,15 +42,19 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public synchronized void add(Cart cart, Long productId, int quantity) throws ProductNotFoundException, OutOfStockException, InvalidQuantityException {
+    public void add(Cart cart, Long productId, int quantity) throws ProductNotFoundException, OutOfStockException, InvalidQuantityException {
         if (quantity <= 0) {
             throw new InvalidQuantityException(quantity);
         }
         if (productId != null) {
             Product product = productDao.getProduct(productId);
+            readWriteLock.readLock().lock();
             CartItem item = findCartItem(cart, productId);
+            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().lock();
             addCartItemToCart(cart, quantity, product, item);
             recalculateCart(cart);
+            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -100,11 +109,15 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public synchronized void  delete(Cart cart, Long productId) {
+    public void delete(Cart cart, Long productId) {
         if (cart != null && productId != null) {
+            readWriteLock.readLock().lock();
             CartItem item = findCartItem(cart, productId);
+            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().lock();
             removeItem(cart, item);
             recalculateCart(cart);
+            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -133,18 +146,22 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public synchronized void update(Cart cart, Long productId, int quantity) throws OutOfStockException, ProductNotFoundException, InvalidQuantityException {
+    public void update(Cart cart, Long productId, int quantity) throws OutOfStockException, ProductNotFoundException, InvalidQuantityException {
         CartItem item = null;
         if (cart != null && productId != null) {
+            readWriteLock.readLock().lock();
             item = findCartItem(cart, productId);
+            readWriteLock.readLock().unlock();
         }
         Product product = productDao.getProduct(productId);
+        readWriteLock.writeLock().lock();
         if (item != null) {
             addIfContainsInCart(quantity, product, item);
         }
         if (cart != null) {
             recalculateCart(cart);
         }
+        readWriteLock.writeLock().unlock();
     }
 
     private void addIfContainsInCart(int quantity, @NotNull Product product, @NotNull CartItem item) throws OutOfStockException, InvalidQuantityException {
@@ -155,6 +172,34 @@ public class DefaultCartService implements CartService {
             throw new OutOfStockException(product.getDescription(), quantity, product.getStock());
         } else {
             item.setQuantity(quantity);
+        }
+    }
+
+    public synchronized void normalizeCart(Cart cart) {
+        if (cart != null) {
+            List<Long> deletingProductIds = new ArrayList<>();
+            cart.getItems().forEach(cartItem -> {
+                Product product = null;
+                try {
+                    product = productDao.getProduct(cartItem.getProduct().getId());
+                    normalizeStock(cart, cartItem, product, deletingProductIds);
+                } catch (ProductNotFoundException e) {
+                    deletingProductIds.add(cartItem.getProduct().getId());
+                }
+            });
+            for (Long id : deletingProductIds) {
+                delete(cart, id);
+            }
+            recalculateCart(cart);
+        }
+    }
+
+    private void normalizeStock(Cart cart, CartItem cartItem, Product product, List<Long> deletingProductIds) {
+        if (product.getStock() < cartItem.getQuantity()) {
+            cartItem.setQuantity(product.getStock());
+        }
+        if (product.getStock() == 0) {
+            deletingProductIds.add(product.getId());
         }
     }
 }

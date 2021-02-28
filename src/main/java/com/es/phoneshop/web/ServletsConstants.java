@@ -31,6 +31,9 @@ public final class ServletsConstants {
     public static final String PARAM_DATE = "date";
     public static final String PARAM_PHONE = "phone";
 
+    public static final String PARAM_ERROR_VALUE_OUT_OF_STOCK = "OutOfStock";
+    public static final String PARAM_ERROR_VALUE_NO_ERROR = "noError";
+
     public static final String ATTR_RECENTLY_VIEWED = "recentlyViewed";
     public static final String ATTR_PRODUCT = "product";
     public static final String ATTR_CART = "cart";
@@ -38,7 +41,6 @@ public final class ServletsConstants {
     public static final String ATTR_EXCEPTION_MAP = "exceptionMap";
     public static final String ATTR_ORDER = "order";
     public static final String ATTR_PAYMENT_TYPES = "paymentTypes";
-
 
 
     private ServletsConstants() {

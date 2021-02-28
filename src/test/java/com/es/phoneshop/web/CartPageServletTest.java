@@ -23,6 +23,8 @@ import java.util.Map;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_EXCEPTION_MAP;
 import static com.es.phoneshop.web.ServletsConstants.CART_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_OUT_OF_STOCK;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
 import static org.mockito.ArgumentMatchers.any;
@@ -144,6 +146,14 @@ public class CartPageServletTest {
         verify(map, times(quantity.length)).put(anyLong(), any());
     }
 
+    @Test
+    public void shouldNormalizeCart() throws ServletException, IOException {
+        when(request.getParameter(PARAM_ERROR)).thenReturn(PARAM_ERROR_VALUE_OUT_OF_STOCK);
+
+        servlet.doGet(request, response);
+
+        verify(cartService).normalizeCart(any());
+    }
 }
 
 

@@ -36,7 +36,7 @@
             </c:forEach>
             <tr>
                 <td colspan="2">Delivery price</td>
-                <td><fmt:formatNumber value="${order.deliveryPrice}" type="currency"
+                <td class="price"><fmt:formatNumber value="${order.deliveryPrice}" type="currency"
                                       currencySymbol="${order.items[0].product.currency.symbol}"/></td>
             </tr>
             <tr>
@@ -56,19 +56,19 @@
                     <td colspan="2"> Details</td>
                 </tr>
                 <tr>
-                    <tags:form exceptionMap="${exceptionMap}" label="First Name" fieldName="firstname"></tags:form>
+                    <tags:form exceptionMap="${exceptionMap}" label="First Name (min - 2 symbols)" fieldName="firstname"></tags:form>
                 </tr>
                 <tr>
-                    <tags:form exceptionMap="${exceptionMap}" label="Last Name" fieldName="lastname"></tags:form>
+                    <tags:form exceptionMap="${exceptionMap}" label="Last Name (min - 2 symbols)" fieldName="lastname"></tags:form>
                 </tr>
                 <tr>
-                    <tags:form exceptionMap="${exceptionMap}" label="Delivery Address" fieldName="address"></tags:form>
+                    <tags:form exceptionMap="${exceptionMap}" label="Delivery Address (min - 10 symbols)" fieldName="address"></tags:form>
                 </tr>
                 <tr>
-                    <tags:form exceptionMap="${exceptionMap}" label="Delivery Date" fieldName="date"></tags:form>
+                    <tags:form exceptionMap="${exceptionMap}" label="Delivery Date" type="date" fieldName="date"></tags:form>
                 </tr>
                 <tr>
-                    <td>Payment type</td>
+                    <td>Payment type<span class="red">*</span></td>
                     <td>
                         <select name="paymentType">
                             <c:forEach var="type" items="${paymentTypes}">
@@ -78,10 +78,14 @@
                     </td>
                 </tr>
                 <tr>
-                    <tags:form label="Phone number" exceptionMap="${exceptionMap}" fieldName="phone"></tags:form>
+                    <tags:form label="Phone number (min - 7 digits)" exceptionMap="${exceptionMap}" fieldName="phone"></tags:form>
+                </tr>
+                <tr style="color: white">
+                    <td></td>
+                    <td><button>Next</button></td>
                 </tr>
             </table>
-            <button style="float: right">Next</button>
+
         </form>
 
     </c:if>

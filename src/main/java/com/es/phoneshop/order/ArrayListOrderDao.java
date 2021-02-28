@@ -1,5 +1,7 @@
 package com.es.phoneshop.order;
 
+import com.es.phoneshop.order.exceptions.OrderNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -10,6 +12,7 @@ public class ArrayListOrderDao implements OrderDao {
     private static final String ORDER_NULL_MSG = "order == null";
 
     private static OrderDao orderDao = null;
+
     private final List<Order> orders;
     private final ReadWriteLock lock;
 
@@ -48,6 +51,8 @@ public class ArrayListOrderDao implements OrderDao {
             lock.readLock().unlock();
         }
     }
+
+
 
     @Override
     public void save(Order order) {

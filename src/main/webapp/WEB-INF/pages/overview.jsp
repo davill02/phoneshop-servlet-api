@@ -5,7 +5,6 @@
 <jsp:useBean id="order" scope="request" type="com.es.phoneshop.order.Order"/>
 <tags:master pageTitle="Checkout">
     <p style="text-align: center">Overview</p>
-
     <table style="margin: 0 auto">
         <thead>
         <tr>
@@ -35,7 +34,7 @@
             <td colspan="2">Total Price</td>
             <td class="price">
                 <fmt:formatNumber value="${order.totalPrice}" type="currency"
-                                  currencySymbol="${order.currency.symbol}"/>
+                                  currencySymbol="${order.items[0].product.currency.symbol}"/>
             </td>
             <td>Total quantity: ${order.totalQuantity}</td>
         </tr>
@@ -63,14 +62,11 @@
         </tr>
         <tr>
             <td>Delivery date</td>
-            <td><input disabled value="${order.person.deliveryDate}"></td>
+            <td><input disabled value="${order.person.date}"></td>
         </tr>
         <tr>
             <td>Payment type</td>
             <td>${order.type}</td>
         </tr>
-
     </table>
-
-
 </tags:master>

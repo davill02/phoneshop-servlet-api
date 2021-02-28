@@ -19,8 +19,9 @@ import static com.es.phoneshop.web.ServletsConstants.ATTR_PRODUCT;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_RECENTLY_VIEWED;
 import static com.es.phoneshop.web.ServletsConstants.DETAILS_PAGE_PATH;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_NO_ERROR;
 import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
-import static com.es.phoneshop.web.ServletsExceptionMessages.SUCCESS_MSG;
+
 
 public class ProductDetailsPageServlet extends AddingToCartServlet {
     private ProductDao productDao;
@@ -46,7 +47,7 @@ public class ProductDetailsPageServlet extends AddingToCartServlet {
     @Override
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
-                + request.getPathInfo() + "?" + PARAM_ERROR + "=" + SUCCESS_MSG);
+                + request.getPathInfo() + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_NO_ERROR);
     }
 
     @Override

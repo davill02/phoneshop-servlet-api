@@ -9,10 +9,9 @@ public final class ServletUtils {
     }
 
     public static int parseQuantity(Locale locale, String quantityString) throws ParseException {
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+        NumberFormat numberFormat;
         numberFormat = NumberFormat.getNumberInstance(locale);
-        Integer quantity = Math.toIntExact((Long) numberFormat.parse(quantityString));
-        return quantity;
+        return Math.toIntExact((Long) numberFormat.parse(quantityString));
     }
 
 }

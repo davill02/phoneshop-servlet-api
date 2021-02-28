@@ -1,4 +1,4 @@
-package com.es.phoneshop.order;
+package com.es.phoneshop.order.exceptions;
 
 public class OrderNotFoundException extends RuntimeException{
     public OrderNotFoundException() {

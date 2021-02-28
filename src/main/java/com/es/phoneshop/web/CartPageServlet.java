@@ -22,6 +22,8 @@ import java.util.Map;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_EXCEPTION_MAP;
 import static com.es.phoneshop.web.ServletsConstants.CART_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_OUT_OF_STOCK;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
 import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
@@ -43,6 +45,10 @@ public class CartPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute(ATTR_EXCEPTION_MAP, exceptionMap);
         request.setAttribute(ATTR_CART, cartService.getCart(request));
+        String status = request.getParameter(PARAM_ERROR);
+        if (PARAM_ERROR_VALUE_OUT_OF_STOCK.equals(status)) {
+            cartService.normalizeCart(cartService.getCart(request));
+        }
         request.getRequestDispatcher(CART_PAGE_PATH).forward(request, response);
     }
 
