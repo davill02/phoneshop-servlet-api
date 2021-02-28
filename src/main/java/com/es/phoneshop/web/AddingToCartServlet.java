@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.MINI_CART_JSP;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
 import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
 import static com.es.phoneshop.web.ServletsExceptionMessages.NEED_INTEGER;
@@ -53,7 +54,6 @@ public abstract class AddingToCartServlet extends HttpServlet {
         if (addToCart(request, response, quantity, cart)) {
             return;
         }
-        //TODO change redirect
         sendRedirect(request, response);
     }
 
@@ -80,6 +80,7 @@ public abstract class AddingToCartServlet extends HttpServlet {
         } catch (NumberFormatException | ClassCastException | ParseException | ArithmeticException e) {
             String exceptionMessage = exceptionMap.get(e.getClass().getName());
             request.setAttribute(ATTR_ERROR, exceptionMessage);
+            request.getRequestDispatcher(MINI_CART_JSP).include(request, response);
             doGet(request, response);
             return null;
         }

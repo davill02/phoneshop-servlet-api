@@ -155,3 +155,13 @@ a.recently {
     text-align: center;
     height: 40px;
 }
+
+label.form_radio{
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    padding-left: 25px;
+    margin-right: 0;
+    line-height: 18px;
+    user-select: none;
+}

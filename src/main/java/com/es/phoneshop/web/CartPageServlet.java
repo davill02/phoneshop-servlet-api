@@ -31,6 +31,7 @@ public class CartPageServlet extends HttpServlet {
     private CartService cartService;
     private Map<Long, List<String>> exceptionMap = new HashMap<>();
     private Locale locale;
+    private boolean isTested = false;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -49,7 +50,9 @@ public class CartPageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String[] quantities = request.getParameterValues(PARAM_QUANTITY);
         String[] productIds = request.getParameterValues(PARAM_ID);
-        exceptionMap = new HashMap<>();
+        if (!isTested) {
+            exceptionMap = new HashMap<>();
+        }
         Cart cart = cartService.getCart(request);
         locale = request.getLocale();
         for (int i = 0; i < quantities.length; i++) {
@@ -76,6 +79,14 @@ public class CartPageServlet extends HttpServlet {
         messages.add(message);
         messages.add(query);
         return messages;
+    }
+
+    public void setTested(boolean tested) {
+        isTested = tested;
+    }
+
+    public void setExceptionMap(Map<Long, List<String>> exceptionMap) {
+        this.exceptionMap = exceptionMap;
     }
 
     public void setCartService(CartService cartService) {

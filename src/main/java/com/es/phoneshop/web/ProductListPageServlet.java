@@ -43,15 +43,37 @@ public class ProductListPageServlet extends AddingToCartServlet {
         String order = request.getParameter(PARAM_ORDER);
         String field = request.getParameter(PARAM_SORT);
         request.setAttribute(PRODUCTS, engine.search(query,
-                Optional.ofNullable(field).map(SortField::valueOf).orElse(null),
-                Optional.ofNullable(order).map(SortOrder::valueOf).orElse(null)));
+                getField(field),
+                getOrder(order)));
         request.getRequestDispatcher(LIST_PAGE_PATH).forward(request, response);
+    }
+
+    private SortOrder getOrder(String order) {
+        try {
+            return Optional
+                    .ofNullable(order)
+                    .map(SortOrder::valueOf)
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private SortField getField(String field) {
+        try {
+            return Optional
+                    .ofNullable(field)
+                    .map(SortField::valueOf)
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
-                + "?" +  PARAM_ERROR + "=" + SUCCESS_MSG);
+                + "?" + PARAM_ERROR + "=" + SUCCESS_MSG);
     }
 
     @Override

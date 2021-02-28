@@ -51,4 +51,12 @@ public class MiniCartServletTest {
         verify(request).setAttribute(eq(ATTR_CART),any(Cart.class));
         verify(requestDispatcher).include(request,response);
     }
+
+    @Test
+    public void shouldDoGetInDoPost() throws ServletException, IOException {
+        servlet.doPost(request,response);
+
+        verify(request).setAttribute(eq(ATTR_CART),any(Cart.class));
+        verify(requestDispatcher).include(request,response);
+    }
 }

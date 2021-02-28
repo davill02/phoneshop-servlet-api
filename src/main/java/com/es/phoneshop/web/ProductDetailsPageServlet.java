@@ -61,7 +61,6 @@ public class ProductDetailsPageServlet extends AddingToCartServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         request.setAttribute(ATTR_CART, super.getCartService().getCart(request));
         request.setAttribute(ATTR_RECENTLY_VIEWED, recentlyViewedService.getRecentlyViewed(request));
         request.setAttribute(ATTR_PRODUCT, productDao.getProduct(parseId(request)));

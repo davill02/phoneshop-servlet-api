@@ -15,8 +15,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -30,12 +30,14 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CartPageServletTest {
+    public static final String STRING = "string";
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -45,18 +47,20 @@ public class CartPageServletTest {
     @Mock
     private ServletConfig config;
     @Mock
-    private HttpSession session;
-    @Mock
     private CartService cartService;
+    @Mock
+    private Map<Long, List<String>> map;
 
-    private CartPageServlet servlet = new CartPageServlet();
+    private final CartPageServlet servlet = new CartPageServlet();
+    private String[] quantity;
+    private String[] id;
+
 
     @Before
     public void setUp() throws Exception {
         servlet.init(config);
         servlet.setCartService(cartService);
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-        when(request.getSession()).thenReturn(session);
         when(cartService.getCart(any())).thenReturn(new Cart());
         when(request.getLocale()).thenReturn(Locale.getDefault());
     }
@@ -72,8 +76,7 @@ public class CartPageServletTest {
 
     @Test
     public void shouldUpdateCart() throws IOException, ServletException, InvalidQuantityException, OutOfStockException {
-        String[] quantity = {"1", "2", "2", "3"};
-        String[] id = {"3", "4", "4", "3"};
+        setStringsArrays();
         when(request.getParameterValues(eq(PARAM_QUANTITY))).thenReturn(quantity);
         when(request.getParameterValues(eq(PARAM_ID))).thenReturn(id);
 
@@ -82,5 +85,65 @@ public class CartPageServletTest {
         verify(cartService, times(quantity.length)).update(any(), anyLong(), anyInt());
     }
 
+    private void setStringsArrays() {
+        quantity = new String[]{"1", "2", "2", "3"};
+        id = new String[]{"3", "4", "4", "3"};
+    }
+
+    @Test
+    public void shouldHandleParseException() throws IOException, ServletException, InvalidQuantityException, OutOfStockException {
+        setStringsArrays();
+        quantity[1] = STRING;
+        when(request.getParameterValues(eq(PARAM_QUANTITY))).thenReturn(quantity);
+        when(request.getParameterValues(eq(PARAM_ID))).thenReturn(id);
+
+        servlet.doPost(request, response);
+
+        verify(cartService, times(quantity.length - 1)).update(any(), anyLong(), anyInt());
+    }
+
+    @Test
+    public void shouldHandleInvalidQuantityException() throws IOException, ServletException, InvalidQuantityException, OutOfStockException {
+        setStringsArrays();
+        setExceptionMapAndRequestStubbing(InvalidQuantityException.class);
+
+        servlet.doPost(request, response);
+
+        verify(cartService, times(quantity.length)).update(any(), anyLong(), anyInt());
+        verify(map, times(quantity.length)).put(anyLong(), any());
+    }
+
+    private void setExceptionMapAndRequestStubbing(Class doThrowExceptionClass) throws InvalidQuantityException, OutOfStockException {
+        servlet.setExceptionMap(map);
+        servlet.setTested(true);
+        doThrow(doThrowExceptionClass).when(cartService).update(any(), any(), anyInt());
+        when(request.getParameterValues(eq(PARAM_QUANTITY))).thenReturn(quantity);
+        when(request.getParameterValues(eq(PARAM_ID))).thenReturn(id);
+
+    }
+
+    @Test
+    public void shouldHandleOutOfStockException() throws IOException, ServletException, InvalidQuantityException, OutOfStockException {
+        setStringsArrays();
+        setExceptionMapAndRequestStubbing(OutOfStockException.class);
+
+        servlet.doPost(request, response);
+
+        verify(cartService, times(quantity.length)).update(any(), anyLong(), anyInt());
+        verify(map, times(quantity.length)).put(anyLong(), any());
+    }
+
+    @Test
+    public void shouldHandleClassCastException() throws InvalidQuantityException, OutOfStockException, IOException, ServletException {
+        setStringsArrays();
+        setExceptionMapAndRequestStubbing(ClassCastException.class);
+
+        servlet.doPost(request, response);
+
+        verify(cartService, times(quantity.length)).update(any(), anyLong(), anyInt());
+        verify(map, times(quantity.length)).put(anyLong(), any());
+    }
 
 }
+
+

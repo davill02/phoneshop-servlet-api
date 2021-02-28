@@ -62,6 +62,7 @@
                 </tr>
             </table>
         </form>
+        <button onclick="window.location.href = '${pageContext.servletContext.contextPath}/checkout'">Next</button>
         <form id="deleteItem" method="post"></form>
     </c:if>
     <c:if test="${cart.items.size() eq 0}">

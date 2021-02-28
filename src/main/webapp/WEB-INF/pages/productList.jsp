@@ -19,11 +19,17 @@
         <button class="search">Search</button>
     </form>
 
-    <c:if test="${param.error eq 'noError' and empty exceptionMap}">
+    <c:if test="${param.error eq 'noError' and empty error}">
         <p class="success">
-                ${param.name} added to cart
+                Item added to cart
         </p>
     </c:if>
+    <c:if test="${not empty error}">
+        <p class="error">
+                ${error}
+        </p>
+    </c:if>
+
     <table style="margin: 0 auto">
         <thead>
         <tr>

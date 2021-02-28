@@ -51,8 +51,9 @@
 
         </tr>
     </table>
-
-    <c:if test="${recentlyViewed.recentlyViewed.size() != 0}"><p>Recently viewed</p></c:if>
+    <c:if test="${recentlyViewed.recentlyViewed.size() != 0
+    and !(recentlyViewed.recentlyViewed.size() == 1 and recentlyViewed.recentlyViewed[0].id eq product.id)}">
+        <p>Recently viewed</p></c:if>
     <c:forEach var="subproduct" items="${recentlyViewed.recentlyViewed}"><c:if
             test="${product.id ne subproduct.id}">
         <div class="bordering">
