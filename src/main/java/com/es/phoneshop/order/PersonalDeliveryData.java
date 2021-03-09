@@ -23,7 +23,8 @@ public class PersonalDeliveryData {
     @Pattern(regexp = "(\\+?)(\\d(\\s?)){7}(\\d(\\s?))*", message = "Wrong number")
     private String phone;
 
-    public PersonalDeliveryData(String firstname, String lastname, String deliveryAddress, Date deliveryDate, String phone) {
+    public PersonalDeliveryData(String firstname, String lastname, String deliveryAddress,
+                                Date deliveryDate, String phone) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.address = deliveryAddress;

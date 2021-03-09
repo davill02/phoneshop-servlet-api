@@ -1,8 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag trimDirectiveWhitespaces="true" %>
-<%@attribute name="type"  %>
-<%@attribute name="label" required="true" %>
-<%@attribute name="exceptionMap" required="true" type="java.util.Map" %>
+<%@ attribute name="type"  %>
+<%@ attribute name="label" required="true" %>
+<%@ attribute name="exceptionMap" required="true" type="java.util.Map" %>
 <%@ attribute name="fieldName" required="true" type="java.lang.String" %>
 <td>${label}<span class="red">*</span></td>
 <c:if test="${exceptionMap[fieldName] eq null}">

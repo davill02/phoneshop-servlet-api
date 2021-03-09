@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <jsp:useBean id="order" scope="request" type="com.es.phoneshop.order.Order"/>
-<tags:master pageTitle="Checkout">
+<tags:master pageTitle="Overview">
     <p style="text-align: center">Overview</p>
     <table style="margin: 0 auto">
         <thead>

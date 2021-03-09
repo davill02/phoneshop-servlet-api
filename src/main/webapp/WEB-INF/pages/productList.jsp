@@ -35,13 +35,13 @@
         <tr>
             <td>Image</td>
             <td>Description
-                <tags:sortedLink sort="description" order="asc"></tags:sortedLink>
-                <tags:sortedLink sort="description" order="desc">desc</tags:sortedLink>
+                <tags:sortedLink sort="DESCRIPTION" order="ASC"></tags:sortedLink>
+                <tags:sortedLink sort="DESCRIPTION" order="DESC">desc</tags:sortedLink>
             </td>
             <td>Quantity</td>
             <td class="price">Price
-                <tags:sortedLink sort="price" order="asc">asc</tags:sortedLink>
-                <tags:sortedLink sort="price" order="desc">desc</tags:sortedLink>
+                <tags:sortedLink sort="PRICE" order="ASC">asc</tags:sortedLink>
+                <tags:sortedLink sort="PRICE" order="DESC">desc</tags:sortedLink>
             </td>
         </tr>
         </thead>

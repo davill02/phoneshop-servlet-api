@@ -7,7 +7,8 @@ import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 
 public interface CartService {
-    void add(Cart cart, Long productId, int quantity) throws ProductNotFoundException, OutOfStockException, InvalidQuantityException;
+    void add(Cart cart, Long productId, int quantity) throws ProductNotFoundException, OutOfStockException,
+            InvalidQuantityException;
 
     void update(Cart cart, Long productId, int quantity) throws OutOfStockException, InvalidQuantityException;
 

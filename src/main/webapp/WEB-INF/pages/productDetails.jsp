@@ -5,7 +5,7 @@
 <jsp:useBean id="cart" type="com.es.phoneshop.cart.Cart" scope="request"/>
 <jsp:useBean id="product" type="com.es.phoneshop.model.product.Product" scope="request"/>
 <jsp:useBean id="recentlyViewed" type="com.es.phoneshop.recentlyviewed.RecentlyViewed" scope="session"/>
-<tags:master pageTitle="Product">
+<tags:master pageTitle="Product Details">
     <p class="description">
             ${product.description}
     </p>

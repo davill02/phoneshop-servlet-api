@@ -118,7 +118,9 @@ public class DefaultOrderService implements OrderService {
         cart.getItems()
                 .forEach(cartItem -> {
                     Product product = productDao.getProduct(cartItem.getProduct().getId());
-                    product.setStock(product.getStock() - cartItem.getQuantity());
+                    synchronized (product) {
+                        product.setStock(product.getStock() - cartItem.getQuantity());
+                    }
                 });
     }
 

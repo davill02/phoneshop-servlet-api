@@ -42,6 +42,9 @@ public class ArrayListOrderDao implements OrderDao {
     public Order getOrder(String id) throws OrderNotFoundException {
         lock.readLock().lock();
         try {
+            if (id == null) {
+                throw new OrderNotFoundException();
+            }
             return orders
                     .stream()
                     .filter(p -> id.equals(p.getSecureId()))
@@ -51,7 +54,6 @@ public class ArrayListOrderDao implements OrderDao {
             lock.readLock().unlock();
         }
     }
-
 
 
     @Override

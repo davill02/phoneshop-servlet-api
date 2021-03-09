@@ -23,7 +23,8 @@ public class OverviewPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String secureId = request.getPathInfo().substring(1);
         request.setAttribute(ATTR_ORDER, orderDao.getOrder(secureId));
         request.getRequestDispatcher(OVERVIEW_PAGE_PATH).forward(request, response);

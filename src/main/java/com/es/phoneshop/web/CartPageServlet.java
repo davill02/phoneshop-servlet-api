@@ -42,7 +42,8 @@ public class CartPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         request.setAttribute(ATTR_EXCEPTION_MAP, exceptionMap);
         request.setAttribute(ATTR_CART, cartService.getCart(request));
         String status = request.getParameter(PARAM_ERROR);
@@ -53,7 +54,8 @@ public class CartPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
         String[] quantities = request.getParameterValues(PARAM_QUANTITY);
         String[] productIds = request.getParameterValues(PARAM_ID);
         if (!isTested) {

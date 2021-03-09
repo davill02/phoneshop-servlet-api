@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DosSecurityService {
     public static final int MAX_COUNT_PER_MINUTE = 20;
     public static final long SECOND = 1000L;
+    public static final long COUNT_SECONDS = 60L;
+    public static final int DELAY = 0;
 
     private static DosSecurityService service;
 
@@ -21,7 +23,7 @@ public class DosSecurityService {
                 requestPerMinute.clear();
             }
         };
-        timer.scheduleAtFixedRate(cycleTask, 0, SECOND * 60L);
+        timer.scheduleAtFixedRate(cycleTask, DELAY, SECOND * COUNT_SECONDS);
     }
 
     public static synchronized DosSecurityService getInstance() {

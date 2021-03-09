@@ -55,7 +55,8 @@ public class CheckoutPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         if (!isSentExceptions) {
             exceptionMap.clear();
         } else {
@@ -69,7 +70,8 @@ public class CheckoutPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         exceptionMap.clear();
         String firstname = request.getParameter(PARAM_FIRSTNAME);
         String lastname = request.getParameter(PARAM_LASTNAME);
@@ -92,7 +94,9 @@ public class CheckoutPageServlet extends HttpServlet {
                 + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_OUT_OF_STOCK);
     }
 
-    private void validateAndChoosePage(HttpServletRequest request, HttpServletResponse response, String paymentType, PersonalDeliveryData person) throws IOException, ServletException, InvalidOrderException {
+    private void validateAndChoosePage(HttpServletRequest request, HttpServletResponse response, String paymentType,
+                                       PersonalDeliveryData person)
+            throws IOException, ServletException, InvalidOrderException {
         Set<ConstraintViolation<PersonalDeliveryData>> violations = getConstraintViolations(person);
         if (violations.isEmpty()) {
             Order orderWithSecureId = handleOrder(request, paymentType, person);
@@ -113,7 +117,8 @@ public class CheckoutPageServlet extends HttpServlet {
         }
     }
 
-    private Order handleOrder(HttpServletRequest request, String paymentType, PersonalDeliveryData person) throws InvalidOrderException {
+    private Order handleOrder(HttpServletRequest request, String paymentType, PersonalDeliveryData person)
+            throws InvalidOrderException {
         Order order = orderService.getOrder(cartService.getCart(request));
         order.setPerson(person);
         order.setType(getPaymentType(paymentType));
@@ -182,7 +187,7 @@ public class CheckoutPageServlet extends HttpServlet {
         try {
             result = PaymentType.valueOf(paymentType);
         } catch (IllegalArgumentException e) {
-            result = PaymentType.cash;
+            result = PaymentType.CASH;
         }
         return result;
     }

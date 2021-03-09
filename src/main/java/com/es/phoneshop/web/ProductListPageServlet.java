@@ -39,7 +39,8 @@ public class ProductListPageServlet extends AddingToCartServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String query = request.getParameter(PARAM_QUERY);
         String order = request.getParameter(PARAM_ORDER);
         String field = request.getParameter(PARAM_SORT);

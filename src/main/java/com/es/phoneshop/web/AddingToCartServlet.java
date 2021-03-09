@@ -45,7 +45,8 @@ public abstract class AddingToCartServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         Integer quantity = getQuantity(request, response);
         if (quantity == null) {
             return;
@@ -59,7 +60,8 @@ public abstract class AddingToCartServlet extends HttpServlet {
 
     protected abstract void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    private boolean addToCart(HttpServletRequest request, HttpServletResponse response, Integer quantity, Cart cart) throws ServletException, IOException {
+    private boolean addToCart(HttpServletRequest request, HttpServletResponse response, Integer quantity, Cart cart)
+            throws ServletException, IOException {
         try {
             cartService.add(cart, parseId(request), Optional.ofNullable(quantity).orElse(0));
         } catch (OutOfStockException | InvalidQuantityException e) {
@@ -73,7 +75,8 @@ public abstract class AddingToCartServlet extends HttpServlet {
     protected abstract Long parseId(HttpServletRequest request);
 
     @Nullable
-    private Integer getQuantity(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private Integer getQuantity(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         Integer quantity;
         try {
             quantity = getQuantity(request);
@@ -87,7 +90,8 @@ public abstract class AddingToCartServlet extends HttpServlet {
         return quantity;
     }
 
-    private Integer getQuantity(HttpServletRequest request) throws ParseException, ClassCastException, ArithmeticException {
+    private Integer getQuantity(HttpServletRequest request)
+            throws ParseException, ClassCastException, ArithmeticException {
         String quantityString = request.getParameter(PARAM_QUANTITY);
         Locale locale = request.getLocale();
         return ServletUtils.parseQuantity(locale, quantityString);
