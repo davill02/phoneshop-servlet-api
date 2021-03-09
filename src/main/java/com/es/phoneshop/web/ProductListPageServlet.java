@@ -18,13 +18,14 @@ import java.util.Optional;
 
 import static com.es.phoneshop.web.ServletsConstants.LIST_PAGE_PATH;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_NO_ERROR;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ORDER;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUERY;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_SORT;
 import static com.es.phoneshop.web.ServletsConstants.PRODUCTS;
 import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
-import static com.es.phoneshop.web.ServletsExceptionMessages.SUCCESS_MSG;
+
 
 public class ProductListPageServlet extends AddingToCartServlet {
 
@@ -38,20 +39,43 @@ public class ProductListPageServlet extends AddingToCartServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String query = request.getParameter(PARAM_QUERY);
         String order = request.getParameter(PARAM_ORDER);
         String field = request.getParameter(PARAM_SORT);
         request.setAttribute(PRODUCTS, engine.search(query,
-                Optional.ofNullable(field).map(SortField::valueOf).orElse(null),
-                Optional.ofNullable(order).map(SortOrder::valueOf).orElse(null)));
+                getField(field),
+                getOrder(order)));
         request.getRequestDispatcher(LIST_PAGE_PATH).forward(request, response);
+    }
+
+    private SortOrder getOrder(String order) {
+        try {
+            return Optional
+                    .ofNullable(order)
+                    .map(SortOrder::valueOf)
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private SortField getField(String field) {
+        try {
+            return Optional
+                    .ofNullable(field)
+                    .map(SortField::valueOf)
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
-                + "?" +  PARAM_ERROR + "=" + SUCCESS_MSG);
+                + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_NO_ERROR);
     }
 
     @Override

@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.USD;
@@ -37,15 +39,18 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public synchronized void add(Cart cart, Long productId, int quantity) throws ProductNotFoundException, OutOfStockException, InvalidQuantityException {
+    public void add(Cart cart, Long productId, int quantity)
+            throws ProductNotFoundException, OutOfStockException, InvalidQuantityException {
         if (quantity <= 0) {
             throw new InvalidQuantityException(quantity);
         }
-        if (productId != null) {
-            Product product = productDao.getProduct(productId);
-            CartItem item = findCartItem(cart, productId);
-            addCartItemToCart(cart, quantity, product, item);
-            recalculateCart(cart);
+        if (cart != null && productId != null) {
+            synchronized (cart) {
+                Product product = productDao.getProduct(productId);
+                CartItem item = findCartItem(cart, productId);
+                addCartItemToCart(cart, quantity, product, item);
+                recalculateCart(cart);
+            }
         }
     }
 
@@ -72,7 +77,8 @@ public class DefaultCartService implements CartService {
         cart.setTotalQuantity(result);
     }
 
-    private void addCartItemToCart(@NotNull Cart cart, int quantity, @NotNull Product product, CartItem item) throws OutOfStockException, InvalidQuantityException {
+    private void addCartItemToCart(@NotNull Cart cart, int quantity, @NotNull Product product, CartItem item)
+            throws OutOfStockException, InvalidQuantityException {
         if (item == null) {
             addIfNotContainsInCart(quantity, product, cart);
         } else {
@@ -80,7 +86,8 @@ public class DefaultCartService implements CartService {
         }
     }
 
-    private void addIfNotContainsInCart(int quantity, @NotNull Product product, @NotNull Cart cart) throws OutOfStockException {
+    private void addIfNotContainsInCart(int quantity, @NotNull Product product, @NotNull Cart cart)
+            throws OutOfStockException {
         CartItem item;
         if (product.getStock() < quantity) {
             throw new OutOfStockException(product.getDescription(), quantity, product.getStock());
@@ -88,6 +95,19 @@ public class DefaultCartService implements CartService {
         item = new CartItem(product, quantity);
         cart.getItems().add(item);
     }
+
+    private void addIfContainsInCart(int quantity, @NotNull Product product, @NotNull CartItem item)
+            throws OutOfStockException, InvalidQuantityException {
+        if (quantity <= 0) {
+            throw new InvalidQuantityException(quantity);
+        }
+        if (product.getStock() < quantity) {
+            throw new OutOfStockException(product.getDescription(), quantity, product.getStock());
+        } else {
+            item.setQuantity(quantity);
+        }
+    }
+
 
     @Nullable
     private CartItem findCartItem(@NotNull Cart cart, @NotNull Long productId) {
@@ -100,11 +120,13 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public synchronized void  delete(Cart cart, Long productId) {
+    public void delete(Cart cart, Long productId) {
         if (cart != null && productId != null) {
-            CartItem item = findCartItem(cart, productId);
-            removeItem(cart, item);
-            recalculateCart(cart);
+            synchronized (cart) {
+                CartItem item = findCartItem(cart, productId);
+                removeItem(cart, item);
+                recalculateCart(cart);
+            }
         }
     }
 
@@ -128,33 +150,50 @@ public class DefaultCartService implements CartService {
             cart = new Cart();
             cart.setCurrency(USD);
         }
-
         return cart;
     }
 
     @Override
-    public synchronized void update(Cart cart, Long productId, int quantity) throws OutOfStockException, ProductNotFoundException, InvalidQuantityException {
-        CartItem item = null;
+    public void update(Cart cart, Long productId, int quantity)
+            throws OutOfStockException, ProductNotFoundException, InvalidQuantityException {
         if (cart != null && productId != null) {
-            item = findCartItem(cart, productId);
+            synchronized (cart) {
+                CartItem item = findCartItem(cart, productId);
+                Product product = productDao.getProduct(productId);
+                if (item != null) {
+                    addIfContainsInCart(quantity, product, item);
+                }
+                recalculateCart(cart);
+            }
         }
-        Product product = productDao.getProduct(productId);
-        if (item != null) {
-            addIfContainsInCart(quantity, product, item);
-        }
+
+    }
+
+
+    public synchronized void normalizeCart(Cart cart) {
         if (cart != null) {
+            List<Long> deletingProductIds = new ArrayList<>();
+            cart.getItems().forEach(cartItem -> {
+                try {
+                    Product product = productDao.getProduct(cartItem.getProduct().getId());
+                    normalizeStock(cartItem, product, deletingProductIds);
+                } catch (ProductNotFoundException e) {
+                    deletingProductIds.add(cartItem.getProduct().getId());
+                }
+            });
+            for (Long id : deletingProductIds) {
+                delete(cart, id);
+            }
             recalculateCart(cart);
         }
     }
 
-    private void addIfContainsInCart(int quantity, @NotNull Product product, @NotNull CartItem item) throws OutOfStockException, InvalidQuantityException {
-        if (quantity <= 0) {
-            throw new InvalidQuantityException(quantity);
+    private void normalizeStock(CartItem cartItem, Product product, List<Long> deletingProductIds) {
+        if (product.getStock() < cartItem.getQuantity()) {
+            cartItem.setQuantity(product.getStock());
         }
-        if (product.getStock() < quantity) {
-            throw new OutOfStockException(product.getDescription(), quantity, product.getStock());
-        } else {
-            item.setQuantity(quantity);
+        if (product.getStock() == 0) {
+            deletingProductIds.add(product.getId());
         }
     }
 }

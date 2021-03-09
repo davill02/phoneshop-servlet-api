@@ -24,7 +24,6 @@ import static com.es.phoneshop.web.ServletsConstants.PARAM_START_WITH_DEFAULT_PR
 public class ProductDaoDemodataServletContextListener implements ServletContextListener {
 
     private final ProductDao productDao;
-    private boolean startWithDefaultProducts;
 
     public ProductDaoDemodataServletContextListener() {
         productDao = ArrayListProductDao.getInstance();
@@ -37,7 +36,7 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
-        startWithDefaultProducts = Boolean.parseBoolean(context.getInitParameter(PARAM_START_WITH_DEFAULT_PRODUCTS));
+        boolean startWithDefaultProducts = Boolean.parseBoolean(context.getInitParameter(PARAM_START_WITH_DEFAULT_PRODUCTS));
         if (startWithDefaultProducts) {
             saveDefaultProducts(productDao);
         }
@@ -51,7 +50,8 @@ public class ProductDaoDemodataServletContextListener implements ServletContextL
     private void saveDefaultProducts(ProductDao productDao) {
 
         Currency usd = Currency.getInstance("USD");
-        Function<PriceHistory, Date> function = (Function<PriceHistory, Date> & Serializable) (PriceHistory p) -> p.getDate();
+        Function<PriceHistory, Date> function =
+                (Function<PriceHistory, Date> & Serializable) PriceHistory::getDate;
         Comparator<PriceHistory> comparator = Comparator.comparing(function);
         SortedSet<PriceHistory> productHistories = new TreeSet<>(comparator);
         Calendar calendar = new GregorianCalendar(100, Calendar.JANUARY, 0);

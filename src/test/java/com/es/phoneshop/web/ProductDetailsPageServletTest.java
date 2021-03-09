@@ -62,7 +62,7 @@ public class ProductDetailsPageServletTest {
     @Mock
     private RecentlyViewedService recentlyViewedService;
 
-    private ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
+    private final ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
 
     @Before

@@ -39,7 +39,8 @@ public class Product implements Serializable {
         this.priceHistories = new TreeSet<>();
     }
 
-    public Product(Long id, String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
+    public Product(Long id, String code, String description, BigDecimal price, Currency currency,
+                   int stock, String imageUrl) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -50,7 +51,8 @@ public class Product implements Serializable {
         this.priceHistories = new TreeSet<>();
     }
 
-    public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl, SortedSet<PriceHistory> productHistories) {
+    public Product(String code, String description, BigDecimal price, Currency currency, int stock,
+                   String imageUrl, SortedSet<PriceHistory> productHistories) {
         this.id = 0L;
         this.code = code;
         this.description = description;

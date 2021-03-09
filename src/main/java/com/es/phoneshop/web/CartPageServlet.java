@@ -22,6 +22,8 @@ import java.util.Map;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_EXCEPTION_MAP;
 import static com.es.phoneshop.web.ServletsConstants.CART_PAGE_PATH;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_OUT_OF_STOCK;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ID;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
 import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
@@ -31,6 +33,7 @@ public class CartPageServlet extends HttpServlet {
     private CartService cartService;
     private Map<Long, List<String>> exceptionMap = new HashMap<>();
     private Locale locale;
+    private boolean isTested = false;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -39,17 +42,25 @@ public class CartPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         request.setAttribute(ATTR_EXCEPTION_MAP, exceptionMap);
         request.setAttribute(ATTR_CART, cartService.getCart(request));
+        String status = request.getParameter(PARAM_ERROR);
+        if (PARAM_ERROR_VALUE_OUT_OF_STOCK.equals(status)) {
+            cartService.normalizeCart(cartService.getCart(request));
+        }
         request.getRequestDispatcher(CART_PAGE_PATH).forward(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
         String[] quantities = request.getParameterValues(PARAM_QUANTITY);
         String[] productIds = request.getParameterValues(PARAM_ID);
-        exceptionMap = new HashMap<>();
+        if (!isTested) {
+            exceptionMap = new HashMap<>();
+        }
         Cart cart = cartService.getCart(request);
         locale = request.getLocale();
         for (int i = 0; i < quantities.length; i++) {
@@ -76,6 +87,14 @@ public class CartPageServlet extends HttpServlet {
         messages.add(message);
         messages.add(query);
         return messages;
+    }
+
+    public void setTested(boolean tested) {
+        isTested = tested;
+    }
+
+    public void setExceptionMap(Map<Long, List<String>> exceptionMap) {
+        this.exceptionMap = exceptionMap;
     }
 
     public void setCartService(CartService cartService) {

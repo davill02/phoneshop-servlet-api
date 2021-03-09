@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 
@@ -22,7 +23,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +46,9 @@ public class DefaultCartServiceTest {
     public static final int INVALID_QUANTITY = -6;
     public static final int QUANTITY = 10;
     private static final Long NON_EXIST_ID = 3232L;
+    public static final long ID1 = 1L;
+    public static final long ID2 = 2L;
+    public static final int EXPECTED_SIZE = 1;
 
     @Mock
     HttpServletRequest request;
@@ -56,6 +62,7 @@ public class DefaultCartServiceTest {
     private final Product notDefaultProduct = new Product(CODE, DESCRIPTION, PRICE, usd, STOCK, IMAGE_URL);
     private Cart cart;
     private final BigDecimal standartSum = new BigDecimal(10);
+    Product product1 = new Product(ID1, new BigDecimal(100), STOCK);
 
     @Before
     public void setUp() {
@@ -186,10 +193,10 @@ public class DefaultCartServiceTest {
         fillCart();
         int expected = QUANTITY - ONE_MORE + LESS_THAN_STOCK;
 
-        cartService.update(cart,ID,LESS_THAN_STOCK);
+        cartService.update(cart, ID, LESS_THAN_STOCK);
         int result = cart.getTotalQuantity();
 
-        assertEquals(expected,result);
+        assertEquals(expected, result);
 
     }
 
@@ -197,27 +204,27 @@ public class DefaultCartServiceTest {
     public void shouldUpdateAndDontRecalculate() throws InvalidQuantityException, OutOfStockException {
         fillCart();
 
-        cartService.update(cart,NON_EXIST_ID,MORE_THAN_STOCK);
+        cartService.update(cart, NON_EXIST_ID, MORE_THAN_STOCK);
         BigDecimal resultPrice = cart.getTotalPrice();
         int resultQuantity = cart.getTotalQuantity();
 
-        assertEquals(QUANTITY,resultQuantity);
-        assertEquals(standartSum,resultPrice);
+        assertEquals(QUANTITY, resultQuantity);
+        assertEquals(standartSum, resultPrice);
     }
 
     private void fillCart() {
         BigDecimal j = new BigDecimal(1);
 
         for (long i = 0; i < QUANTITY; i++) {
-            cart.getItems().add(new CartItem(new Product(i,j,MORE_THAN_STOCK),ONE_COUNT));
+            cart.getItems().add(new CartItem(new Product(i, j, MORE_THAN_STOCK), ONE_COUNT));
         }
     }
 
     @Test
-    public void shouldDeleteItem(){
+    public void shouldDeleteItem() {
         cart.getItems().add(new CartItem(notDefaultProduct, ONE_COUNT));
 
-        cartService.delete(cart,ID);
+        cartService.delete(cart, ID);
         List<CartItem> result = cart.getItems();
 
         assertTrue(result.isEmpty());
@@ -225,12 +232,64 @@ public class DefaultCartServiceTest {
     }
 
     @Test
-    public void shouldDeleteNonExistItem(){
+    public void shouldDeleteNonExistItem() {
         fillCart();
 
-        cartService.delete(cart,NON_EXIST_ID);
+        cartService.delete(cart, NON_EXIST_ID);
         int result = cart.getItems().size();
 
-        assertEquals(QUANTITY,result);
+        assertEquals(QUANTITY, result);
+    }
+
+    @Test
+    public void shouldDoNothing() {
+        cartService.normalizeCart(null);
+
+        verify(productDao, never()).getProduct(any());
+    }
+
+    @Test
+    public void shouldNormalizeCartButDoNothing() {
+        Cart cart = getValidCart();
+
+
+        cartService.normalizeCart(cart);
+
+        verify(productDao, times(2)).getProduct(anyLong());
+    }
+
+    private Cart getValidCart() {
+        Cart cart = new Cart();
+        List<CartItem> cartItems = new ArrayList<>();
+        Product product2 = new Product(ID2, new BigDecimal(200), STOCK);
+        when(productDao.getProduct(anyLong())).thenReturn(product1, product2);
+        cartItems.add(new CartItem(product1, 5));
+        cartItems.add(new CartItem(product2, 7));
+        cart.setItems(cartItems);
+        return cart;
+    }
+
+    @Test
+    public void shouldNormalizeCart() {
+        Cart cart = getValidCart();
+        cart.getItems().get(0).setQuantity(MORE_THAN_STOCK);
+
+        cartService.normalizeCart(cart);
+        int result = cart.getItems().get(0).getQuantity();
+
+        verify(productDao, times(2)).getProduct(anyLong());
+        assertEquals(STOCK, result);
+    }
+
+    @Test
+    public void shouldNormalizeCartAndDeleteItem() {
+        Cart cart = getValidCart();
+        product1.setStock(0);
+
+        cartService.normalizeCart(cart);
+        int result = cart.getItems().size();
+
+        assertEquals(EXPECTED_SIZE, result);
     }
 }
+

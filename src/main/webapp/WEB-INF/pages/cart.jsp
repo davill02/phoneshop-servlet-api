@@ -5,6 +5,11 @@
 <jsp:useBean id="cart" scope="session" type="com.es.phoneshop.cart.Cart"/>
 <tags:master pageTitle="Cart">
     <p style="text-align: center">Cart</p>
+    <c:if test="${not empty param.error}">
+        <p class="error">
+            We changed cart items because we dont have your quantity
+        </p>
+    </c:if>
     <c:if test="${cart.items.size() ne 0}">
         <form method="post">
             <table style="margin: 0 auto">
@@ -60,8 +65,18 @@
                         <button class="add2cart">Update</button>
                     </td>
                 </tr>
+                <tr>
+                    <td colspan="4"></td>
+                    <td>
+                        <button type="button"
+                                onclick="window.location.href = '${pageContext.servletContext.contextPath}/checkout'">
+                            Next
+                        </button>
+                    </td>
+                </tr>
             </table>
         </form>
+
         <form id="deleteItem" method="post"></form>
     </c:if>
     <c:if test="${cart.items.size() eq 0}">

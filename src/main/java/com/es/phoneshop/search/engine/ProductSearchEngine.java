@@ -56,7 +56,9 @@ public class ProductSearchEngine implements SearchEngine<Product> {
     private Stream<Product> filterAndSortByQuery(Stream<Product> productStream, String query) {
         List<String> strings = divideIntoWords(query);
         return productStream
-                .filter(p -> query == null || query.trim().isEmpty() || relevantStrings(p.getDescription(), strings) > 0)
+                .filter(p -> query == null
+                        || query.trim().isEmpty()
+                        || relevantStrings(p.getDescription(), strings) > 0)
                 .sorted(Comparator.comparing((Product p) -> relevantStrings(p.getDescription(), strings)));
     }
 
@@ -67,7 +69,8 @@ public class ProductSearchEngine implements SearchEngine<Product> {
                 .filter(p -> p.getPrice() != null);
     }
 
-    private Stream<Product> sortingByParameters(Stream<Product> productStream, SortField sortField, SortOrder sortOrder) {
+    private Stream<Product> sortingByParameters(Stream<Product> productStream,
+                                                SortField sortField, SortOrder sortOrder) {
         if (sortField != null && sortOrder != null) {
             productStream = productStream.sorted(getProductComparator(sortField, sortOrder));
         }
@@ -78,13 +81,13 @@ public class ProductSearchEngine implements SearchEngine<Product> {
     private Comparator<Product> getProductComparator(SortField sortField, SortOrder sortOrder) {
         Comparator<Product> comparator;
         comparator = Comparator.comparing(p -> {
-            if (sortField == SortField.description) {
+            if (sortField == SortField.DESCRIPTION) {
                 return (Comparable) p.getDescription();
             } else {
                 return (Comparable) p.getPrice();
             }
         });
-        if (sortOrder == SortOrder.desc) {
+        if (sortOrder == SortOrder.DESC) {
             comparator = comparator.reversed();
         }
         return comparator;

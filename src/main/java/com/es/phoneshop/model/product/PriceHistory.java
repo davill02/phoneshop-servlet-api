@@ -1,13 +1,11 @@
 package com.es.phoneshop.model.product;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Date;
 
-public class PriceHistory implements Serializable{
+public class PriceHistory implements Serializable {
     private BigDecimal price;
     private Currency currency;
     private Date date;

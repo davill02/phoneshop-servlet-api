@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static com.es.phoneshop.web.ServletsConstants.ATTR_CART;
 import static com.es.phoneshop.web.ServletsConstants.ATTR_ERROR;
+import static com.es.phoneshop.web.ServletsConstants.MINI_CART_JSP;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_QUANTITY;
 import static com.es.phoneshop.web.ServletsExceptionMessages.CANT_PARSE_VALUE;
 import static com.es.phoneshop.web.ServletsExceptionMessages.NEED_INTEGER;
@@ -44,7 +45,8 @@ public abstract class AddingToCartServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         Integer quantity = getQuantity(request, response);
         if (quantity == null) {
             return;
@@ -53,13 +55,13 @@ public abstract class AddingToCartServlet extends HttpServlet {
         if (addToCart(request, response, quantity, cart)) {
             return;
         }
-        //TODO change redirect
         sendRedirect(request, response);
     }
 
     protected abstract void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    private boolean addToCart(HttpServletRequest request, HttpServletResponse response, Integer quantity, Cart cart) throws ServletException, IOException {
+    private boolean addToCart(HttpServletRequest request, HttpServletResponse response, Integer quantity, Cart cart)
+            throws ServletException, IOException {
         try {
             cartService.add(cart, parseId(request), Optional.ofNullable(quantity).orElse(0));
         } catch (OutOfStockException | InvalidQuantityException e) {
@@ -73,20 +75,23 @@ public abstract class AddingToCartServlet extends HttpServlet {
     protected abstract Long parseId(HttpServletRequest request);
 
     @Nullable
-    private Integer getQuantity(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private Integer getQuantity(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         Integer quantity;
         try {
             quantity = getQuantity(request);
         } catch (NumberFormatException | ClassCastException | ParseException | ArithmeticException e) {
             String exceptionMessage = exceptionMap.get(e.getClass().getName());
             request.setAttribute(ATTR_ERROR, exceptionMessage);
+            request.getRequestDispatcher(MINI_CART_JSP).include(request, response);
             doGet(request, response);
             return null;
         }
         return quantity;
     }
 
-    private Integer getQuantity(HttpServletRequest request) throws ParseException, ClassCastException, ArithmeticException {
+    private Integer getQuantity(HttpServletRequest request)
+            throws ParseException, ClassCastException, ArithmeticException {
         String quantityString = request.getParameter(PARAM_QUANTITY);
         Locale locale = request.getLocale();
         return ServletUtils.parseQuantity(locale, quantityString);
