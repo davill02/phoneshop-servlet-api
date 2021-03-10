@@ -7,25 +7,43 @@
 
 <tags:master pageTitle="Product List">
 
-    <form style="text-align: center">
-        <input type="button" value="Choose products"
-               onclick="window.location.href = '${pageContext.servletContext.contextPath}/products/search';">
-    </form>
     <p style="text-align: center">
         Welcome to Expert-Soft training!
     </p>
+    <c:if test="${not empty exceptionMap['max min']}">
+        <p class="error"> ${exceptionMap['max min']}</p>
+    </c:if>
 
     <form style="text-align: center;margin: 10px auto;">
-
-        <input type="hidden" name="sort" value="${param.sort}">
-        <input type="hidden" name="order" value="${param.order}">
         <input name="query" value="${param.query}">
         <button class="search">Search</button>
+        <div>Min price</div>
+        <input name="minPrice" value="${param.minPrice}">
+        <c:if test="${not empty exceptionMap[param.minPrice]}">
+            <p class="error"> ${exceptionMap[param.minPrice]}</p>
+        </c:if>
+        <div>Max price</div>
+        <input name="maxPrice" value="${param.maxPrice}">
+        <c:if test="${not empty exceptionMap[param.maxPrice]}">
+            <p class="error"> ${exceptionMap[param.maxPrice]}</p>
+        </c:if>
+        <p>Search type:
+            <select name="searchType">
+                <c:if test="${empty param.searchType or param.searchType eq 'ALL_WORDS' }">
+                    <option>ALL_WORDS</option>
+                    <option>ANY_WORD</option>
+                </c:if>
+                <c:if test="${not empty param.searchType and param.searchType eq 'ANY_WORD' }">
+                    <option>ANY_WORD</option>
+                    <option>ALL_WORDS</option>
+                </c:if>
+            </select>
+        </p>
     </form>
 
     <c:if test="${param.error eq 'noError' and empty error}">
         <p class="success">
-                Item added to cart
+            Item added to cart
         </p>
     </c:if>
     <c:if test="${not empty error}">
@@ -39,18 +57,15 @@
         <tr>
             <td>Image</td>
             <td>Description
-                <tags:sortedLink sort="DESCRIPTION" order="ASC"></tags:sortedLink>
-                <tags:sortedLink sort="DESCRIPTION" order="DESC">desc</tags:sortedLink>
+
             </td>
             <td>Quantity</td>
             <td class="price">Price
-                <tags:sortedLink sort="PRICE" order="ASC">asc</tags:sortedLink>
-                <tags:sortedLink sort="PRICE" order="DESC">desc</tags:sortedLink>
             </td>
         </tr>
         </thead>
         <c:forEach var="item" items="${products}">
-        <form method="post">
+
             <tr>
                 <td>
                     <img class="product-tile" src="${item.imageUrl}">
@@ -87,9 +102,8 @@
                         </script>
                     </div>
                 </td>
-                <td><button>Add to cart</button></td>
             </tr>
-            </form>
+
         </c:forEach>
     </table>
 

@@ -5,6 +5,7 @@ public final class ServletsExceptionMessages {
     public static final String CANT_PARSE_VALUE = "Cant parse value";
     public static final String TOO_BIG_NUMBER = "Too big number";
     public static final String NOT_A_NUMBER = "Not a number";
+    public static final String CHANGE_MAX_AND_MIN_MESSAGE = "Change max and min";
 
     private ServletsExceptionMessages() {
     }

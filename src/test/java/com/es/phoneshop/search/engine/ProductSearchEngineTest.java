@@ -86,7 +86,7 @@ public class ProductSearchEngineTest {
                 .sorted()
                 .collect(Collectors.toList());
 
-        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.price, SortOrder.asc);
+        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.PRICE, SortOrder.ASC);
         List<BigDecimal> result = products
                 .stream()
                 .map(Product::getPrice)
@@ -104,7 +104,7 @@ public class ProductSearchEngineTest {
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
 
-        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.price, SortOrder.desc);
+        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.PRICE, SortOrder.DESC);
         List<BigDecimal> result = products
                 .stream()
                 .map(Product::getPrice)
@@ -122,7 +122,7 @@ public class ProductSearchEngineTest {
                 .sorted()
                 .collect(Collectors.toList());
 
-        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.description, SortOrder.asc);
+        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.DESCRIPTION, SortOrder.ASC);
         List<String> result = products
                 .stream()
                 .map(Product::getDescription)
@@ -140,7 +140,7 @@ public class ProductSearchEngineTest {
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
 
-        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.description, SortOrder.desc);
+        List<Product> products = searchEngine.search(EMPTY_QUERY, SortField.DESCRIPTION, SortOrder.DESC);
         List<String> result = products
                 .stream()
                 .map(Product::getDescription)
@@ -158,7 +158,7 @@ public class ProductSearchEngineTest {
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
 
-        List<Product> products = searchEngine.search(SortField.description, SortOrder.desc);
+        List<Product> products = searchEngine.search(SortField.DESCRIPTION, SortOrder.DESC);
         List<String> result = products
                 .stream()
                 .map(Product::getDescription)
