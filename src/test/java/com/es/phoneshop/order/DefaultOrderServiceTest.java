@@ -99,8 +99,8 @@ public class DefaultOrderServiceTest {
     @Test
     public void shouldReturnPaymentTypes() {
         List<PaymentType> paymentTypeList = orderService.getPaymentTypes();
-        boolean isContainsCash = paymentTypeList.contains(PaymentType.cash);
-        boolean isContainsCard = paymentTypeList.contains(PaymentType.card);
+        boolean isContainsCash = paymentTypeList.contains(PaymentType.CASH);
+        boolean isContainsCard = paymentTypeList.contains(PaymentType.CARD);
 
 
         assertTrue(isContainsCard);

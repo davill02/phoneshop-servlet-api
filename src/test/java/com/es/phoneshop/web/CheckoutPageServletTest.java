@@ -105,7 +105,7 @@ public class CheckoutPageServletTest {
         when(request.getParameter(eq(PARAM_LASTNAME))).thenReturn(VALID_NAME);
         when(request.getParameter(eq(PARAM_FIRSTNAME))).thenReturn(VALID_NAME);
         when(request.getParameter(eq(PARAM_DATE))).thenReturn(VALID_DATA);
-        when(request.getParameter(eq(PARAM_PAYMENT_TYPE))).thenReturn(PaymentType.card.toString());
+        when(request.getParameter(eq(PARAM_PAYMENT_TYPE))).thenReturn(PaymentType.CARD.toString());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class CheckoutPageServletTest {
 
         verify(response).sendRedirect(any());
         verify(orderService).placeOrder(any());
-        assertEquals(PaymentType.cash, result.getType());
+        assertEquals(PaymentType.CASH, result.getType());
     }
 
     @Test
