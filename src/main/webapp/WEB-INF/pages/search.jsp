@@ -59,7 +59,6 @@
             <td>Description
 
             </td>
-            <td>Quantity</td>
             <td class="price">Price
             </td>
         </tr>
@@ -74,10 +73,6 @@
                     <a href="${pageContext.servletContext.contextPath}/products/${item.id}">
                             ${item.description}
                     </a>
-                </td>
-                <td>
-                    <input name="quantity" value="${1}">
-                    <input type="hidden" name="id" value="${item.id}">
                 </td>
                 <td class="price">
                     <div class="popup" onclick="${item.code}Function()">
