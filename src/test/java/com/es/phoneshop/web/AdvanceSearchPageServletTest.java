@@ -33,6 +33,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AdvanceSearchPageServletTest {
     public static final String STRING = "String";
+    public static final String VALID_PRICE_1 = "400";
+    public static final String VALID_PRICE_2 = "200";
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -63,10 +65,7 @@ public class AdvanceSearchPageServletTest {
 
     @Test
     public void shouldDoGetWithAnyValidPriceAndSearchType() throws ServletException, IOException {
-        when(request.getParameter(eq(PARAM_QUERY))).thenReturn("");
-        when(request.getParameter(eq(PARAM_MAX_PRICE))).thenReturn("400");
-        when(request.getParameter(eq(PARAM_MIN_PRICE))).thenReturn("200");
-        when(request.getParameter(eq(PARAM_SEARCH_TYPE))).thenReturn(SearchType.ANY_WORD.toString());
+        getValidRequestParameters("",VALID_PRICE_1,VALID_PRICE_2,SearchType.ANY_WORD.toString());
 
         servlet.doGet(request, response);
         Map<String, String> result = servlet.getExceptions();
@@ -76,12 +75,16 @@ public class AdvanceSearchPageServletTest {
         assertTrue(result.isEmpty());
     }
 
+    private void getValidRequestParameters(String query, String maxPrice,String minPrice, String searchType) {
+        when(request.getParameter(eq(PARAM_QUERY))).thenReturn(query);
+        when(request.getParameter(eq(PARAM_MAX_PRICE))).thenReturn(maxPrice);
+        when(request.getParameter(eq(PARAM_MIN_PRICE))).thenReturn(minPrice);
+        when(request.getParameter(eq(PARAM_SEARCH_TYPE))).thenReturn(searchType);
+    }
+
     @Test
     public void shouldDoGetWithAnyInvalidPriceAndSearchType() throws ServletException, IOException {
-        when(request.getParameter(eq(PARAM_QUERY))).thenReturn("");
-        when(request.getParameter(eq(PARAM_MAX_PRICE))).thenReturn("200");
-        when(request.getParameter(eq(PARAM_MIN_PRICE))).thenReturn("400");
-        when(request.getParameter(eq(PARAM_SEARCH_TYPE))).thenReturn(SearchType.ANY_WORD.toString());
+        getValidRequestParameters("",VALID_PRICE_2,VALID_PRICE_1,SearchType.ANY_WORD.toString());
 
         servlet.doGet(request, response);
         Map<String, String> result = servlet.getExceptions();
@@ -93,10 +96,7 @@ public class AdvanceSearchPageServletTest {
     }
     @Test
     public void shouldDoGetWithInvalidPriceByNumberAndSearchType() throws ServletException, IOException {
-        when(request.getParameter(eq(PARAM_QUERY))).thenReturn("");
-        when(request.getParameter(eq(PARAM_MAX_PRICE))).thenReturn(STRING);
-        when(request.getParameter(eq(PARAM_MIN_PRICE))).thenReturn("400");
-        when(request.getParameter(eq(PARAM_SEARCH_TYPE))).thenReturn(SearchType.ANY_WORD.toString());
+        getValidRequestParameters("",STRING,VALID_PRICE_2,SearchType.ANY_WORD.toString());
 
         servlet.doGet(request, response);
         Map<String, String> result = servlet.getExceptions();
@@ -106,5 +106,18 @@ public class AdvanceSearchPageServletTest {
         assertFalse(result.isEmpty());
         assertNotNull(result.get(STRING));
     }
+
+    @Test
+    public void shouldDoGetWithSearchTypeAllWords() throws ServletException, IOException {
+        getValidRequestParameters("",VALID_PRICE_1,VALID_PRICE_2,SearchType.ALL_WORDS.toString());
+
+        servlet.doGet(request, response);
+        Map<String, String> result = servlet.getExceptions();
+
+        verify(request).setAttribute(eq(PRODUCTS), any());
+        verify(requestDispatcher).forward(eq(request), eq(response));
+        assertTrue(result.isEmpty());
+    }
+
 
 }
