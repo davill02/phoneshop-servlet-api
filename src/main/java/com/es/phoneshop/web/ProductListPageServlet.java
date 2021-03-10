@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-
 import static com.es.phoneshop.web.ServletsConstants.LIST_PAGE_PATH;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR;
 import static com.es.phoneshop.web.ServletsConstants.PARAM_ERROR_VALUE_NO_ERROR;
@@ -29,6 +28,7 @@ import static com.es.phoneshop.web.ServletsConstants.PRODUCTS_PATH;
 
 public class ProductListPageServlet extends AddingToCartServlet {
 
+    private static final String EMPTY_STRING = "";
     private SearchEngine<Product> engine;
 
     @Override
@@ -74,8 +74,15 @@ public class ProductListPageServlet extends AddingToCartServlet {
 
     @Override
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String order = Optional.ofNullable(request.getParameter(PARAM_ORDER)).orElse(EMPTY_STRING);
+        String sort = Optional.ofNullable(request.getParameter(PARAM_SORT)).orElse(EMPTY_STRING);
+        String query = Optional.ofNullable(request.getParameter(PARAM_QUERY)).orElse(EMPTY_STRING);
         response.sendRedirect(getServletContext().getContextPath() + PRODUCTS_PATH
-                + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_NO_ERROR);
+                + "?" + PARAM_ERROR + "=" + PARAM_ERROR_VALUE_NO_ERROR
+                + "&" + PARAM_ORDER + "=" + order
+                + "&" + PARAM_SORT + "=" + sort
+                + "&" + PARAM_QUERY + "=" + query
+        );
     }
 
     @Override
