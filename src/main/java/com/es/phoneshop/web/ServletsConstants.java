@@ -16,6 +16,7 @@ public final class ServletsConstants {
     public static final String CART_PATH = "/cart";
     public static final String ORDER_PATH = "/order";
     public static final String OVERVIEW_PATH = "/overview";
+    public static final String ADVANCED_SEARCH_PAGE_PATH = "/WEB-INF/pages/search.jsp";
 
     public static final String PARAM_QUERY = "query";
     public static final String PARAM_ORDER = "order";
@@ -30,6 +31,9 @@ public final class ServletsConstants {
     public static final String PARAM_PAYMENT_TYPE = "paymentType";
     public static final String PARAM_DATE = "date";
     public static final String PARAM_PHONE = "phone";
+    public static final String PARAM_MIN_PRICE = "minPrice";
+    public static final String PARAM_MAX_PRICE = "maxPrice";
+    public static final String PARAM_SEARCH_TYPE = "searchType";
 
     public static final String PARAM_ERROR_VALUE_OUT_OF_STOCK = "OutOfStock";
     public static final String PARAM_ERROR_VALUE_NO_ERROR = "noError";
